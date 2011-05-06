@@ -1,7 +1,7 @@
 include ../config.mk
 
 CC = gcc
-CFLAGS = -Wall -fPIC -O2 -I/usr/lib/ocaml
+CFLAGS = -Wall -fPIC -O2 -I$(shell ocamlc -where)
 OCAMLC = ocamlc -g
 OCAMLOPT = ocamlopt
 
@@ -19,7 +19,7 @@ OBJS = netdev
 INTF = $(foreach obj, $(OBJS),$(obj).cmi)
 LIBS = netdev.cma netdev.cmxa
 
-DOCDIR = /myrepos/xen-api-libs/doc
+DOCDIR = ../doc
 
 all: $(INTF) $(LIBS) $(PROGRAMS)
 

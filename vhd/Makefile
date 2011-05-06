@@ -1,7 +1,11 @@
 include ../config.mk
 
+OCAMLABI := $(shell ocamlc -version)
+OCAMLLIBDIR := $(shell ocamlc -where)
+OCAMLDESTDIR ?= $(OCAMLLIBDIR)
+
 CC = gcc
-CFLAGS = -Wall -fPIC -O2 -I/usr/lib/ocaml -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_GNU_SOURCE -fno-strict-aliasing -D_FILE_OFFSET_BITS=64
+CFLAGS = -Wall -fPIC -O2 -I$(OCAMLLIBDIR) -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_GNU_SOURCE -fno-strict-aliasing -D_FILE_OFFSET_BITS=64
 OCAMLC = ocamlc -g
 OCAMLOPT = ocamlopt
 OCAMLFIND = ocamlfind
@@ -12,15 +16,11 @@ DESTDIR ?= /
 VERSION := 1
 OCAMLFLAGS = -g -dtypes 
 
-OCAMLABI := $(shell ocamlc -version)
-OCAMLLIBDIR := $(shell ocamlc -where)
-OCAMLDESTDIR ?= $(OCAMLLIBDIR)
-
 OBJS = vhd
 INTF = $(foreach obj, $(OBJS),$(obj).cmi)
 LIBS = vhd.cma vhd.cmxa
 
-DOCDIR = /myrepos/xen-api-libs/doc
+DOCDIR = ../doc
 
 all: $(INTF) $(LIBS) $(PROGRAMS)
 
