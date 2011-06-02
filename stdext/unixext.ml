@@ -255,13 +255,53 @@ let open_connection_unix_fd filename =
 	  s
 	with e -> Unix.close s; raise e
 
-type endpoint = { fd: Unix.file_descr; mutable buffer: string; mutable buffer_len: int }
+module CBuf = struct
+	(** A circular buffer constructed from a string *)
+	type t = {
+		mutable buffer: string; 
+		mutable len: int;       (** bytes of valid data in [buffer] *)
+		mutable start: int;     (** index of first valid byte in [buffer] *)
+		mutable r_closed: bool; (** true if no more data can be read due to EOF *)
+		mutable w_closed: bool; (** true if no more data can be written due to EOF *)
+	}
 
-let make_endpoint fd = {
-	fd = fd;
-	buffer = String.make 4096 '\000';
-	buffer_len = 0
-}
+	let empty length = {
+		buffer = String.create length;
+		len = 0;
+		start = 0;
+		r_closed = false;
+		w_closed = false;
+	}
+
+	let drop (x: t) n =
+		if n > x.len then failwith (Printf.sprintf "drop %d > %d" n x.len);
+		x.start <- (x.start + n) mod (String.length x.buffer);
+		x.len <- x.len - n
+
+	let should_read (x: t) =
+		not x.r_closed && (x.len < (String.length x.buffer - 1))
+	let should_write (x: t) =
+		not x.w_closed && (x.len > 0)
+
+	let end_of_reads (x: t) = x.r_closed && x.len = 0
+	let end_of_writes (x: t) = x.w_closed
+
+	let write (x: t) fd =
+		(* Offset of the character after the substring *)
+		let next = min (String.length x.buffer) (x.start + x.len) in
+		let len = next - x.start in
+		let written = try Unix.single_write fd x.buffer x.start len with e -> x.w_closed <- true; len in
+		drop x written
+
+	let read (x: t) fd =
+		(* Offset of the next empty character *)
+		let next = (x.start + x.len) mod (String.length x.buffer) in
+		let len = min (String.length x.buffer - next) (String.length x.buffer - x.len) in
+		let read = Unix.read fd x.buffer next len in
+		if read = 0 then x.r_closed <- true;
+		x.len <- x.len + read
+	
+end
 
 exception Process_still_alive
 
@@ -302,32 +342,31 @@ let kill_and_wait ?(signal = Sys.sigterm) ?(timeout=10.) pid =
 	)
 
 let proxy (a: Unix.file_descr) (b: Unix.file_descr) =
-	let a' = make_endpoint a and b' = make_endpoint b in
+	let size = 64 * 1024 in
+	(* [a'] is read from [a] and will be written to [b] *)
+	(* [b'] is read from [b] and will be written to [a] *)
+	let a' = CBuf.empty size and b' = CBuf.empty size in
 	Unix.set_nonblock a;
 	Unix.set_nonblock b;
 
-	let can_read x =
-		x.buffer_len < (String.length x.buffer - 1) in
-	let can_write x =
-		x.buffer_len > 0 in
-	let write_from x fd =
-		let written = Unix.single_write fd x.buffer 0 x.buffer_len in
-		String.blit x.buffer written x.buffer 0 (x.buffer_len - written);
-		x.buffer_len <- x.buffer_len - written in
-	let read_into x =
-		let read = Unix.read x.fd x.buffer x.buffer_len (String.length x.buffer - x.buffer_len) in
-		if read = 0 then raise End_of_file;
-		x.buffer_len <- x.buffer_len + read in
-
 	try
 	while true do
-		let r = (if can_read a' then [ a ] else []) @ (if can_read b' then [ b ] else []) in
-		let w = (if can_write a' then [ b ] else []) @ (if can_write b' then [ a ] else []) in
+		let r = (if CBuf.should_read a' then [ a ] else []) @ (if CBuf.should_read b' then [ b ] else []) in
+		let w = (if CBuf.should_write a' then [ b ] else []) @ (if CBuf.should_write b' then [ a ] else []) in
+
+		(* If we can't make any progress (because fds have been closed), then stop *)
+		if r = [] && w = [] then raise End_of_file;
 
 		let r, w, _ = Unix.select r w [] (-1.0) in
 		(* Do the writing before the reading *)
-		List.iter (fun fd -> if a = fd then write_from b' a else write_from a' b) w;
-		List.iter (fun fd -> if a = fd then read_into a' else read_into b') r
+		List.iter (fun fd -> if a = fd then CBuf.write b' a else CBuf.write a' b) w;
+		List.iter (fun fd -> if a = fd then CBuf.read a' a else CBuf.read b' b) r;
+		(* If there's nothing else to read or write then signal the other end *)
+		List.iter
+			(fun (buf, fd) ->
+				if CBuf.end_of_reads buf then Unix.shutdown fd Unix.SHUTDOWN_SEND;
+				if CBuf.end_of_writes buf then Unix.shutdown fd Unix.SHUTDOWN_RECEIVE
+			) [ a', b; b', a ]
 	done
 	with _ ->
 		(try Unix.clear_nonblock a with _ -> ());
