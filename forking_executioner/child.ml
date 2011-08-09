@@ -1,4 +1,5 @@
 open Stringext
+open Pervasiveext
 
 let debug (fmt : ('a, unit, string, unit) format4) = (Printf.kprintf (fun s -> Printf.fprintf stderr "%s\n" s) fmt)
 
@@ -8,6 +9,7 @@ type state_t = {
   cmdargs : string list;
   env : string list;
   id_to_fd_map : (string * int option) list;
+  syslog_stdout : bool;
   ids_received : (string * Unix.file_descr) list;
   fd_sock2 : Unix.file_descr option;
   finished : bool;
@@ -84,7 +86,7 @@ let handle_comms comms_sock fd_sock state =
     | None -> handle_comms_no_fd_sock2 comms_sock fd_sock state
     | Some x -> handle_comms_with_fd_sock2 comms_sock fd_sock x state
 
-let run state comms_sock fd_sock fd_sock_path =
+let run state comms_sock fd_sock fd_sock_path syslog_stdout =
   let rec inner state =
     let state = handle_comms comms_sock fd_sock state in
     if state.finished then state else inner state
@@ -120,39 +122,68 @@ let run state comms_sock fd_sock fd_sock_path =
       with _ -> arg) state.cmdargs in
 
     debug "Args after replacement = [%s]" (String.concat ";" args);    
+	let name = List.hd args in
 
     let fds = List.map snd state.ids_received in
     
     debug "I've received the following fds: [%s]\n" 
       (String.concat ";" (List.map (fun fd -> string_of_int (Unixext.int_of_file_descr fd)) fds));
 
+    let in_childlogging = ref None in
+    let out_childlogging = ref None in
+    if syslog_stdout then begin
+      (* Create a pipe used to listen to the child process's stdout *)
+      let (in_fd, out_fd) = Unix.pipe () in
+      in_childlogging := Some in_fd;
+      out_childlogging := Some out_fd
+    end;
+
     let result = Unix.fork () in
 
     if result=0 then begin
-      (* child *)
+		(* child *)
+
+        (* Make the child's stdout go into the pipe *)
+		Opt.iter (fun out_fd -> Unix.dup2 out_fd Unix.stdout) !out_childlogging;
+
       (* Now let's close everything except those fds mentioned in the ids_received list *)
       Unixext.close_all_fds_except ([Unix.stdin; Unix.stdout; Unix.stderr] @ fds);
       
-	  (* Distance ourselves from our parent process: *)
-	  if Unix.setsid () == -1 then failwith "Unix.setsid failed";	  
+      (* Distance ourselves from our parent process: *)
+      if Unix.setsid () == -1 then failwith "Unix.setsid failed";	  
 
       (* And exec *)
-      Unix.execve (List.hd args) (Array.of_list args) (Array.of_list state.env)
+      Unix.execve name (Array.of_list args) (Array.of_list state.env)
     end else begin
       Fecomms.write_raw_rpc comms_sock (Fe.Execed result);
 
       List.iter (fun fd -> Unix.close fd) fds;
-      let (pid,status) = Unix.waitpid [] result in
-	  
-	  let log_failure reason code = 
+
+      (* Close the end of the pipe that's only supposed to be written to by the child process. *)
+	  Opt.iter Unix.close !out_childlogging;
+
+      let log_failure reason code = 
 		(* The commandline might be too long to clip it *)
 		let cmdline = String.concat " " args in
 		let limit = 80 - 3 in
 		let cmdline' = if String.length cmdline > limit then String.sub cmdline 0 limit ^ "..." else cmdline in
-		if code=0 && (List.hd args) = "/opt/xensource/sm/ISOSR" && (String.has_substr cmdline' "sr_scan") then () else
+		if code=0 && name = "/opt/xensource/sm/ISOSR" && (String.has_substr cmdline' "sr_scan") then () else
 			Syslog.log Syslog.Syslog Syslog.Err (Printf.sprintf "%d (%s) %s %d" result cmdline' reason code) in
 
-      let pr = match status with
+	  let status = ref (Unix.WEXITED (-1)) in
+	  finally
+		  (fun () ->
+			  Opt.iter
+				  (fun in_fd ->
+					  (* Read from the child's stdout and write each one to syslog *)
+					  Unixext.lines_iter
+						  (fun line ->
+							  Syslog.log Syslog.Daemon Syslog.Info (Printf.sprintf "%s[%d]: %s" (Filename.basename name) result line)
+						  ) (Unix.in_channel_of_descr in_fd)
+				  ) !in_childlogging
+		  ) (fun () -> status := snd (Unix.waitpid [] result));
+
+      let pr = match !status with
 		| Unix.WEXITED n -> 
 			(* Unfortunately logging this was causing too much spam *)
 			if n <> 0 then log_failure "exitted with code" n;
