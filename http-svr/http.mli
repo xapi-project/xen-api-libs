@@ -12,7 +12,7 @@
  * GNU Lesser General Public License for more details.
  *)
 (** Recognised HTTP methods *)
-type method_t = Get | Post | Put | Connect | Unknown of string
+type method_t = Get | Post | Put | Connect | Options | Unknown of string
 val string_of_method_t : method_t -> string
 val method_t_of_string : string -> method_t
 
@@ -135,6 +135,7 @@ module Hdr : sig
 	val transfer_encoding: string
 	val authorization: string
 	val connection: string
+	val acrh : string
 end
 
 val output_http : Unix.file_descr -> string list -> unit
