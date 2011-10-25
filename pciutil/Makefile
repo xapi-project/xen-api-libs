@@ -1,26 +1,11 @@
 include ../config.mk
 
 IPROG=install -m 755
-CC = gcc
-CFLAGS = -Wall -fPIC -O2 -I/opt/xensource/lib/ocaml
-OCAMLC = ocamlc -g
-OCAMLOPT = ocamlopt
 
-LDFLAGS = -cclib -L./
-
-LIBEXEC = "/opt/xensource/libexec"
-VERSION := $(shell git show-ref --head | grep -E " HEAD$$" | cut -f 1 -d " " || echo 0)
-OCAMLOPTFLAGS = -g -dtypes
-
-OCAMLABI := $(shell ocamlc -version)
-OCAMLLIBDIR := $(shell ocamlc -where)
-OCAMLDESTDIR ?= $(OCAMLLIBDIR)
 
 OBJS = pciutil
 INTF = $(foreach obj, $(OBJS),$(obj).cmi)
 LIBS = pciutil.cma pciutil.cmxa
-
-DOCDIR = ../doc
 
 PROGRAMS = pciutil
 
@@ -58,7 +43,7 @@ META: META.in
 install: path = $(DESTDIR)$(shell ocamlfind printconf destdir)
 install: $(LIBS) META
 	mkdir -p $(path)
-	ocamlfind install -destdir $(path) -ldconf ignore pciutil META $(INTF) $(LIBS) *.a *.cmx *.sp?t
+	ocamlfind install -destdir $(path) -ldconf ignore pciutil META $(INTF) $(LIBS) *.a *.cmx $(SPOT)
 
 .PHONY: bininstall
 bininstall: path = $(DESTDIR)$(LIBEXEC)
@@ -79,4 +64,4 @@ doc: $(INTF)
 	python ../doc/doc.py $(DOCDIR) "pciutil" "package" "$(OBJS)" "." "stdext" ""
 
 clean:
-	rm -f *.o *.so *.a *.cmo *.cmi *.cma *.cmx *.cmxa *.annot *.sp?t $(LIBS) $(PROGRAMS)
+	rm -f META *.o *.so *.a *.cmo *.cmi *.cma *.cmx *.cmxa *.annot $(SPOT) $(LIBS) $(PROGRAMS)

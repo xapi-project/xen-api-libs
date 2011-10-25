@@ -1,5 +1,5 @@
 (*
- * Copyright (C) 2006-2009 Citrix Systems Inc.
+ * Copyright (C) Citrix Systems Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -12,15 +12,6 @@
  * GNU Lesser General Public License for more details.
  *)
 
-type t
+exception MissingHeader of string
 
-exception Stop_listen
-exception Timeout
-exception Protocol_error of string
-
-type status = Error | Success
-
-val bind : int -> string -> t
-val query_with_id : t -> string -> string -> string -> (status * string)
-val query : t -> string -> string -> (status * string)
-val listen : string -> (int -> string -> string -> string -> (status * string) option) -> unit
+val upgrade : Http.Request.t -> Unix.file_descr -> unit

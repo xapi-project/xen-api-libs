@@ -1,29 +1,12 @@
 include ../config.mk
 
-OCAMLABI := $(shell ocamlc -version)
-OCAMLLIBDIR := $(shell ocamlc -where)
-OCAMLDESTDIR ?= $(OCAMLLIBDIR)
-
-CC = gcc
-CFLAGS = -Wall -fPIC -O2 -I$(OCAMLLIBDIR)
-OCAMLC = ocamlc -g
-OCAMLOPT = ocamlopt
-
-FEPP = camlp4o -I ../rpc-light -I $(shell ocamlfind query type-conv) pa_type_conv.cmo pa_rpc.cma
-
-LDFLAGS = -cclib -L./
-
-VERSION := $(shell git show-ref --head | grep -E " HEAD$$" | cut -f 1 -d " " || echo 0)
-OCAMLOPTFLAGS = -g -dtypes
+#FEPP = camlp4o -I ../rpc-light -I $(shell ocamlfind query type-conv) pa_type_conv.cmo pa_rpc.cma
 
 OBJS = tapctl
 INTF = $(foreach obj, $(OBJS),$(obj).cmi)
 LIBS = tapctl.cma tapctl.cmxa
 
-DOCDIR = ../doc
-
-OCAMLFLAGS = -pp '${FEPP}' -I ../rpc-light -I ../stdext
-
+OCAMLFLAGS = $(RPCLIGHTFLAGS) -I ../rpc-light -I ../stdext
 
 all: $(INTF) $(LIBS) $(PROGRAMS)
 
@@ -56,7 +39,7 @@ META: META.in
 install: path = $(DESTDIR)$(shell ocamlfind printconf destdir)
 install: $(LIBS) META
 	mkdir -p $(path)
-	ocamlfind install -destdir $(path) -ldconf ignore tapctl META $(INTF) $(LIBS) *.a *.cmx *.sp?t
+	ocamlfind install -destdir $(path) -ldconf ignore tapctl META $(INTF) $(LIBS) *.a *.cmx $(SPOT)
 
 .PHONY: uninstall
 uninstall:
@@ -67,4 +50,4 @@ doc: $(INTF)
 	python ../doc/doc.py $(DOCDIR) "tapctl" "package" "$(OBJS)" "." "" ""
 
 clean:
-	rm -f *.o *.so *.a *.cmo *.cmi *.cma *.cmx *.cmxa *.annot *.sp?t $(LIBS) $(PROGRAMS)
+	rm -f META *.o *.so *.a *.cmo *.cmi *.cma *.cmx *.cmxa *.annot $(SPOT) $(LIBS) $(PROGRAMS)

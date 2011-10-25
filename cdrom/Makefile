@@ -1,24 +1,8 @@
 include ../config.mk
 
-LDFLAGS = -cclib -L./
-
-VERSION := $(shell git show-ref --head | grep -E " HEAD$$" | cut -f 1 -d " " || echo 0)
-OCAMLOPTFLAGS = -g -dtypes
-
-OCAMLABI := $(shell ocamlc -version)
-OCAMLLIBDIR := $(shell ocamlc -where)
-OCAMLDESTDIR ?= $(OCAMLLIBDIR)
-
-CC = gcc
-CFLAGS = -Wall -fPIC -O2 -I$(OCAMLLIBDIR)
-OCAMLC = ocamlc -g
-OCAMLOPT = ocamlopt
-
 OBJS = cdrom
 INTF = $(foreach obj, $(OBJS),$(obj).cmi)
 LIBS = cdrom.cma cdrom.cmxa
-
-DOCDIR = ../doc
 
 all: $(INTF) $(LIBS) $(PROGRAMS)
 
@@ -58,7 +42,7 @@ META: META.in
 install: path = $(DESTDIR)$(shell ocamlfind printconf destdir)
 install: $(LIBS) META
 	mkdir -p $(path)
-	ocamlfind install -destdir $(path) -ldconf ignore cdrom META $(INTF) $(LIBS) *.a *.so *.cmx *.sp?t
+	ocamlfind install -destdir $(path) -ldconf ignore cdrom META $(INTF) $(LIBS) *.a *.so *.cmx $(SPOT)
 
 .PHONY: uninstall
 uninstall:
@@ -69,4 +53,4 @@ doc: $(INTF)
 	python ../doc/doc.py $(DOCDIR) "cdrom" "package" "$(OBJS)" "." "" ""
 
 clean:
-	rm -f *.o *.so *.a *.cmo *.cmi *.cma *.cmx *.cmxa *.annot *.sp?t $(LIBS) $(PROGRAMS)
+	rm -f META *.o *.so *.a *.cmo *.cmi *.cma *.cmx *.cmxa *.annot $(SPOT) $(LIBS) $(PROGRAMS)
