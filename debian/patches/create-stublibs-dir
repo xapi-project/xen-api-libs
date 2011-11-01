@@ -1,0 +1,49 @@
+    Create stublibs dir if it doesn't exist
+    
+    This can happen when you build xen-api-libs with the DESTDIR flag set, say,
+    while using pbuilder. This fixes a bug where we weren't able to build bytecode
+    executables because ocamlc couldn't find the stublibs libraries.
+    
+    Signed-off-by: Mike McClurg <mike.mcclurg@citrix.com>
+
+
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -7,6 +7,10 @@
+ 
+ include config.mk
+ 
++STUBLIBDIR = $(DESTDIR)$(shell ocamlc -where)/stublibs
++$(STUBLIBDIR):
++	mkdir -p $@
++
+ .PHONY: all
+ all:
+ ifeq ($(HAVE_TYPECONV),type-conv)
+@@ -45,7 +49,7 @@
+ 	$(MAKE) -C tapctl
+ endif
+ 
+-install:
++install: $(STUBLIBDIR)
+ 	$(MAKE) -C uuid install
+ 	$(MAKE) -C stdext install
+ 	$(MAKE) -C log install
+@@ -72,7 +76,7 @@
+ 	$(MAKE) -C forking_executioner install
+ 	$(MAKE) -C xen-utils install
+ 
+-installxen:
++installxen: $(STUBLIBDIR)
+ ifeq ($(HAVE_XEN),1)
+ 	$(MAKE) -C netdev install
+ 	$(MAKE) -C cpuid install
+@@ -122,7 +126,7 @@
+ 	$(MAKE) -C stdext bins
+ 	$(MAKE) -C close-and-exec bins
+ 
+-bininstall:
++bininstall:	$(STUBLIBDIR)
+ 	$(MAKE) -C pciutil bininstall
+ 	$(MAKE) -C xml-light2 bininstall
+ 	$(MAKE) -C sexpr bininstall

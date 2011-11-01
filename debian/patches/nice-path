@@ -1,0 +1,11 @@
+--- a/stdext/gzip.ml
++++ b/stdext/gzip.ml
+@@ -34,7 +34,7 @@
+ let lower_priority cmd args =
+   let ionice="/usr/bin/ionice" in
+   let ionice_args=["-c";"3"] in (*io idle*)
+-  let nice="/bin/nice" in
++  let nice="/usr/bin/nice" in
+   let nice_args=["-n";"19"] in (*lowest priority*)
+   let extra_args=nice_args@[ionice]@ionice_args in
+   let new_cmd=nice in

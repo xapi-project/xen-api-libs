@@ -1,0 +1,17 @@
+commit 3ac9a997b39571a678352efdef5c0c5b25fba78a
+Author: Jon Ludlam <jon@dhcp-3-31.uk.xensource.com>
+Date:   Fri Jul 1 11:58:53 2011 +0100
+
+    Remove call to get boot cpuid - it's not in OSS Xen
+
+--- a/cpuid/cpuid.ml
++++ b/cpuid/cpuid.ml
+@@ -138,7 +138,7 @@
+ 
+ let get_features_from_xen () =
+ 	let features = 
+-	  try Xenctrl.with_intf (fun xc -> Xenctrl.get_boot_cpufeatures xc) 
++	  try failwith "Xenctrl.with_intf (fun xc -> Xenctrl.get_boot_cpufeatures xc) "
+ 	  with _ -> 0l, 0l, 0l, 0l, 0l, 0l, 0l, 0l 
+ 	in
+ 	match features with

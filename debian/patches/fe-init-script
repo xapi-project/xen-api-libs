@@ -1,0 +1,270 @@
+--- a/forking_executioner/init.d-fe
++++ b/forking_executioner/init.d-fe
+@@ -1,99 +1,157 @@
+-#! /bin/bash
++#! /bin/sh
++### BEGIN INIT INFO
++# Provides:          fe
++# Required-Start:    $remote_fs $syslog
++# Required-Stop:     $remote_fs $syslog
++# Default-Start:     2 3 4 5
++# Default-Stop:      0 1 6
++# Short-Description: Fork-and-exec daemon
++# Description:       This is a daemon required by xapi to fork and execute
++# 
++### END INIT INFO
++
++# Author: Jon Ludlam <jonathan.ludlam@eu.citrix.com>
++#
++
++# Do NOT "set -e"
++
++# PATH should only include /usr/* if it runs after the mountnfs.sh script
++PATH=/sbin:/usr/sbin:/bin:/usr/bin
++DESC="Fork and exec daemon"
++NAME=fe
++DAEMON=/usr/sbin/$NAME
++DAEMON_ARGS=
++PIDFILE=/var/run/$NAME.pid
++SCRIPTNAME=/etc/init.d/$NAME
++
++# Exit if the package is not installed
++[ -x "$DAEMON" ] || exit 0
++
++# Read configuration variable file if it is present
++[ -r /etc/default/$NAME ] && . /etc/default/$NAME
++
++# Load the VERBOSE setting and other rcS variables
++. /lib/init/vars.sh
++
++# Define LSB log_* functions.
++# Depend on lsb-base (>= 3.2-14) to ensure that this file is present
++# and status_of_proc is working.
++. /lib/lsb/init-functions
++
+ #
+-# squeezed          Start/Stop the fork/exec daemon
++# Function that starts the daemon/service
+ #
+-# chkconfig: 2345 21 78
+-# description: Fork/exec daemon
+-# processname: fe
+-# pidfile: /var/run/fe.pid
+-
+-# Source function library.
+-. /etc/init.d/functions
+-
+-# Memory ballooning daemon
+-
+-# location of the executable:
+-DAEMON="/opt/xensource/libexec/fe"
+-
+-# pidfile:
+-PID_FILE="/var/run/fe.pid"
+-
+-# lock file
+-SUBSYS_FILE="/var/lock/subsys/fe"
+-
+-# Source function library.
+-. /etc/init.d/functions
+-
+-start() {
+-	echo -n $"Starting the fork/exec daemon: "
+-	
+-	if [ -e ${SUBSYS_FILE} ]; then
+-		if [ -e ${PID_FILE} ] && [ -e /proc/`cat ${PID_FILE}` ]; then
+-			echo -n $"cannot start fe: already running."
+-			failure $"cannot start fe: already running."
+-			echo
+-			return 1
+-		fi
+-	fi
+-	
+-	${DAEMON} -daemon -pidfile ${PID_FILE} >/dev/null 2>&1 </dev/null
+-
+-	MAX_RETRIES=30
+-	RETRY=0
+-	while [ ${RETRY} -lt ${MAX_RETRIES} ]; do
+-        	PID=$(cat ${PID_FILE} 2>/dev/null)
+-		kill -0 ${PID} 2> /dev/null
+-		if [ $? -eq 0 ]; then
+-			touch ${SUBSYS_FILE}
+-			success
+-			echo
+-			return 0
+-		fi
+-		sleep 1
+-		echo -n .
+-		RETRY=$(( ${RETRY} + 1 ))
+-	done
+-	echo -n $"failed to start fe."
+-	failure $"failed to start fe."
+-	killproc fe
+-	rm -f ${SUBSYS_FILE} ${PID_FILE}
+-	echo
+-	return 1
++do_start()
++{
++	# Return
++	#   0 if daemon has been started
++	#   1 if daemon was already running
++	#   2 if daemon could not be started
++	start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $DAEMON --test > /dev/null \
++		|| return 1
++	start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $DAEMON -- \
++		$DAEMON_ARGS \
++		|| return 2
++	# Add code here, if necessary, that waits for the process to be ready
++	# to handle requests from services started subsequently which depend
++	# on this one.  As a last resort, sleep for some time.
+ }
+ 
+-stop() {
+-	echo -n $"Stopping the fork/exec daemon: "
+-
+-	if [ ! -e ${SUBSYS_FILE} ]; then
+-		echo -n $"cannot stop fe: fe is not running."
+-		failure $"cannot stop fe: fe is not running."
+-		echo
+-		return 1;
+-	fi
+-
+-	killproc fe
+-	RETVAL=$?
+-	echo
+-	[ $RETVAL -eq 0 ] && rm -f ${SUBSYS_FILE}
+-	return $RETVAL
++#
++# Function that stops the daemon/service
++#
++do_stop()
++{
++	# Return
++	#   0 if daemon has been stopped
++	#   1 if daemon was already stopped
++	#   2 if daemon could not be stopped
++	#   other if a failure occurred
++	start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 --pidfile $PIDFILE --name $NAME
++	RETVAL="$?"
++	[ "$RETVAL" = 2 ] && return 2
++	# Wait for children to finish too if this is a daemon that forks
++	# and if the daemon is only ever run from this initscript.
++	# If the above conditions are not satisfied then add some other code
++	# that waits for the process to drop all resources that could be
++	# needed by services started subsequently.  A last resort is to
++	# sleep for some time.
++	start-stop-daemon --stop --quiet --oknodo --retry=0/30/KILL/5 --exec $DAEMON
++	[ "$?" = 2 ] && return 2
++	# Many daemons don't delete their pidfiles when they exit.
++	rm -f $PIDFILE
++	return "$RETVAL"
+ }
+ 
+-restart() {
+-	stop
+-	start
++#
++# Function that sends a SIGHUP to the daemon/service
++#
++do_reload() {
++	#
++	# If the daemon can reload its configuration without
++	# restarting (for example, when it is sent a SIGHUP),
++	# then implement that here.
++	#
++	start-stop-daemon --stop --signal 1 --quiet --pidfile $PIDFILE --name $NAME
++	return 0
+ }
+ 
+ case "$1" in
+-	start)
+-		start
+-		;;
+-	stop)
+-		stop
++  start)
++	[ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESC" "$NAME"
++	do_start
++	case "$?" in
++		0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
++		2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
++	esac
++	;;
++  stop)
++	[ "$VERBOSE" != no ] && log_daemon_msg "Stopping $DESC" "$NAME"
++	do_stop
++	case "$?" in
++		0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
++		2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
++	esac
++	;;
++  status)
++       status_of_proc "$DAEMON" "$NAME" && exit 0 || exit $?
++       ;;
++  #reload|force-reload)
++	#
++	# If do_reload() is not implemented then leave this commented out
++	# and leave 'force-reload' as an alias for 'restart'.
++	#
++	#log_daemon_msg "Reloading $DESC" "$NAME"
++	#do_reload
++	#log_end_msg $?
++	#;;
++  restart|force-reload)
++	#
++	# If the "reload" option is implemented then remove the
++	# 'force-reload' alias
++	#
++	log_daemon_msg "Restarting $DESC" "$NAME"
++	do_stop
++	case "$?" in
++	  0|1)
++		do_start
++		case "$?" in
++			0) log_end_msg 0 ;;
++			1) log_end_msg 1 ;; # Old process is still running
++			*) log_end_msg 1 ;; # Failed to start
++		esac
+ 		;;
+-	restart)
+-		restart
++	  *)
++	  	# Failed to stop
++		log_end_msg 1
+ 		;;
+-	*)
+-		echo $"Usage: $0 {start|stop|restart}"
+-		exit 1
++	esac
++	;;
++  *)
++	#echo "Usage: $SCRIPTNAME {start|stop|restart|reload|force-reload}" >&2
++	echo "Usage: $SCRIPTNAME {start|stop|status|restart|force-reload}" >&2
++	exit 3
++	;;
+ esac
++
++:
+--- a/forking_executioner/Makefile
++++ b/forking_executioner/Makefile
+@@ -1,6 +1,7 @@
+ include ../config.mk
+ 
+ IPROG=install -m 755
++BINPATH=/usr/sbin
+ 
+ INIT_D   = /etc/rc.d/init.d
+ 
+@@ -40,10 +41,8 @@
+ .PHONY: bininstall
+ bininstall: path = $(DESTDIR)$(LIBEXEC)
+ bininstall: all
+-	mkdir -p $(DESTDIR)$(LIBEXEC)
+-	$(IPROG) $(PROGRAMS) $(DESTDIR)$(LIBEXEC)
+-	mkdir -p $(DESTDIR)$(INIT_D)
+-	$(IPROG) init.d-fe $(DESTDIR)$(INIT_D)/fe
++	mkdir -p $(DESTDIR)$(BINPATH)
++	$(IPROG) $(PROGRAMS) $(DESTDIR)$(BINPATH)
+ 
+ .PHONY: uninstall
+ uninstall:

@@ -1,0 +1,12 @@
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -8,6 +8,9 @@
+ 
+ include config.mk
+ 
++OCAMLPATH=/usr/lib/xen-4.1/lib/ocaml
++export OCAMLPATH
++
+ .PHONY: default
+ default: all 
+ 	@:

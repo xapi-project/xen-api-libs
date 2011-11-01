@@ -1,0 +1,9 @@
+xen-api-libs for Debian
+-----------------------
+
+The ocamlfind packages are installed under /usr/lib/ocaml/xcp. In order to use
+them, please set your OCAMLPATH variable to include this path. Additionally, to
+use bytecode compilation you'll need to set CAML_LD_LIBRARY_PATH to include
+/usr/lib/ocaml/xcp/stublibs.
+
+ -- Jon Ludlam <jonathan.ludlam@eu.citrix.com>  Thu, 07 Jul 2011 13:53:51 +0100

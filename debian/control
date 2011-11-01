@@ -1,0 +1,36 @@
+Source: xen-api-libs
+Section: libs
+Priority: extra
+Maintainer: Jon Ludlam <jonathan.ludlam@eu.citrix.com>
+Build-Depends: debhelper (>= 8.0.0), libxen-ocaml-dev, libxen-ocaml-4.1, ocaml-nox, camlp4, camlp4-extra, ocaml-findlib, autotools-dev, dh-autoreconf, libtype-conv-camlp4-dev, libxmlm-ocaml-dev, uuid-dev, libdevmapper-dev, libxen-dev, libvhd-dev, dh-ocaml
+Standards-Version: 3.9.2
+Homepage: http://www.xen.org/XCP
+#Vcs-Git: git://git.debian.org/collab-maint/xen-api-libs.git
+#Vcs-Browser: http://git.debian.org/?p=collab-maint/xen-api-libs.git;a=summary
+
+Package: libxcp-ocaml
+Architecture: any
+Section: ocaml
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${ocaml:Depends}
+Provides: ${ocaml:Provides}
+Description: Ocaml libraries required by the XCP xen control stack
+ This package contains the runtime libraries required by ocaml bytecode
+ programs that link against the XCP ocaml libraries
+
+Package: libxcp-ocaml-dev
+Architecture: any
+Section: ocaml
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${ocaml:Depends}
+Provides: ${ocaml:Provides}
+Description: Ocaml libraries required by the XCP xen control stack
+ This package contains the file required to develop against the ocaml 
+ libraries provided as part of the XCP xen control stack
+
+Package: xcp-fe
+Architecture: any
+Section: libs
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Fork-and-exec daemon for xapi
+ This daemon is the fork-and-exec daemon used by xapi. When xapi requires
+ another executable to be run, rather than forking and execing itself, it
+ uses this single-threaded daemon to do it, passing fds to it as required.

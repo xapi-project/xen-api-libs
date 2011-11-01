@@ -1,0 +1,5 @@
+xen-api-libs (0.1-1) unstable; urgency=low
+
+  * Initial release (Closes: #646727) 
+
+ -- Jon Ludlam <jonathan.ludlam@eu.citrix.com>  Thu, 07 Jul 2011 13:53:51 +0100
