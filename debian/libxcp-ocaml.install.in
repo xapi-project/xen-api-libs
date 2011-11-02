@@ -36,4 +36,9 @@
 @OCamlStdlibDir@/xcp/netdev/META
 @OCamlStdlibDir@/xcp/cpuid/META
 @OCamlStdlibDir@/xcp/stublibs
+@OCamlStdlibDir@/xcp/lvm/META
+@OCamlStdlibDir@/xcp/lvm/lvm.cma
+@OCamlStdlibDir@/xcp/camldm/META
+@OCamlStdlibDir@/xcp/camldm/camldm.cma
+
 

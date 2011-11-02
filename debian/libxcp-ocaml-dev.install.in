@@ -191,3 +191,9 @@
 @OCamlStdlibDir@/xcp/rpc-light/jsonrpc.o
 @OCamlStdlibDir@/xcp/rpc-light/rpc.o
 @OCamlStdlibDir@/xcp/rpc-light/xmlrpc.o
+@OCamlStdlibDir@/xcp/camldm/camldm.cmxa
+@OCamlStdlibDir@/xcp/camldm/camldm.cmi
+@OCamlStdlibDir@/xcp/camldm/camldm.cmx
+@OCamlStdlibDir@/xcp/lvm/lvm.a
+@OCamlStdlibDir@/xcp/lvm/lvm.cmxa
+@OCamlStdlibDir@/xcp/lvm/lvm.cmi
