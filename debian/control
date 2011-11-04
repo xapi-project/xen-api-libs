@@ -2,7 +2,7 @@ Source: xen-api-libs
 Section: libs
 Priority: extra
 Maintainer: Jon Ludlam <jonathan.ludlam@eu.citrix.com>
-Build-Depends: debhelper (>= 8.0.0), libxen-ocaml-dev, libxen-ocaml-4.1, ocaml-nox, camlp4, camlp4-extra, ocaml-findlib, autotools-dev, dh-autoreconf, libtype-conv-camlp4-dev, libxmlm-ocaml-dev, uuid-dev, libdevmapper-dev, libxen-dev, libvhd-dev, dh-ocaml
+Build-Depends: debhelper (>= 8.0.0), libxen-ocaml-dev, libxen-ocaml-4.1, ocaml-nox, camlp4, camlp4-extra, ocaml-findlib, autotools-dev, dh-autoreconf, libtype-conv-camlp4-dev, libxmlm-ocaml-dev, uuid-dev, libdevmapper-dev, libxen-dev, blktap-dev, dh-ocaml
 Standards-Version: 3.9.2
 Homepage: http://www.xen.org/XCP
 #Vcs-Git: git://git.debian.org/collab-maint/xen-api-libs.git
@@ -20,7 +20,7 @@ Description: Ocaml libraries required by the XCP xen control stack
 Package: libxcp-ocaml-dev
 Architecture: any
 Section: ocaml
-Depends: ${shlibs:Depends}, ${misc:Depends}, ${ocaml:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${ocaml:Depends}, blktap-dev
 Provides: ${ocaml:Provides}
 Description: Ocaml libraries required by the XCP xen control stack
  This package contains the file required to develop against the ocaml 
