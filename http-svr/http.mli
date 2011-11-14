@@ -31,6 +31,23 @@ val read_http_header: string -> Unix.file_descr -> int
 val read_http_request_header: string -> Unix.file_descr -> int * bool
 val read_http_response_header: string -> Unix.file_descr -> int
 
+module Accept : sig
+	type t = {
+		ty: string option; (* None means '*' *)
+		subty: string option; (* None means '*' *)
+		q: int;
+	}
+	exception Parse_failure of string
+	val t_of_string : string -> t
+	val ts_of_string : string -> t list
+
+	val string_of_t : t -> string
+
+	val matches : (string * string) -> t -> bool
+	val preferred_match : (string * string) -> t list -> t option
+end
+
+
 (** Parsed form of the HTTP request line plus cookie info *)
 module Request : sig
 	type t = {
@@ -40,6 +57,7 @@ module Request : sig
 		version: string;
 		frame: bool;
 		transfer_encoding: string option;
+		accept: string option;
 		content_length: int64 option;
 		auth: authorization option;
 		cookie: (string * string) list;
@@ -58,7 +76,7 @@ module Request : sig
 	val empty: t
 
 	(** [make] is the standard constructor for [t] *)
-	val make: ?frame:bool -> ?version:string -> ?keep_alive:bool -> ?cookie:(string*string) list -> ?length:int64 -> ?subtask_of:string -> ?body:string -> ?headers:(string*string) list -> ?content_type:string -> user_agent:string -> method_t -> string -> t
+	val make: ?frame:bool -> ?version:string -> ?keep_alive:bool -> ?accept:string -> ?cookie:(string*string) list -> ?length:int64 -> ?subtask_of:string -> ?body:string -> ?headers:(string*string) list -> ?content_type:string -> user_agent:string -> method_t -> string -> t
 
 	(** [get_version t] returns the HTTP protocol version *)
 	val get_version: t -> string
@@ -137,6 +155,7 @@ module Hdr : sig
 	val acrh : string
 	val cache_control: string
 	val content_disposition: string
+	val accept: string
 end
 
 val output_http : Unix.file_descr -> string list -> unit
