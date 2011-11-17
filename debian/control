@@ -2,11 +2,11 @@ Source: xen-api-libs
 Section: libs
 Priority: extra
 Maintainer: Jon Ludlam <jonathan.ludlam@eu.citrix.com>
-Build-Depends: debhelper (>= 8.0.0), libxen-ocaml-dev, libxen-ocaml-4.1, ocaml-nox, camlp4, camlp4-extra, ocaml-findlib, autotools-dev, dh-autoreconf, libtype-conv-camlp4-dev, libxmlm-ocaml-dev, uuid-dev, libdevmapper-dev, libxen-dev, blktap-dev, dh-ocaml
+Build-Depends: debhelper (>= 8.0.0), libxen-ocaml-dev, libxen-ocaml-4.1, ocaml-nox, camlp4, camlp4-extra, ocaml-findlib, autotools-dev, dh-autoreconf, libtype-conv-camlp4-dev, libxmlm-ocaml-dev, uuid-dev, libdevmapper-dev, libxen-dev, blktap-dev, dh-ocaml, libounit-ocaml-dev
 Standards-Version: 3.9.2
 Homepage: http://www.xen.org/XCP
-#Vcs-Git: git://git.debian.org/collab-maint/xen-api-libs.git
-#Vcs-Browser: http://git.debian.org/?p=collab-maint/xen-api-libs.git;a=summary
+Vcs-Git: git://github.com/xen-org/xen-api-libs.git
+Vcs-Browser: https://github.com/xen-org/xen-api-libs/
 
 Package: libxcp-ocaml
 Architecture: any
