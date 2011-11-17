@@ -1,6 +1,6 @@
 --- a/Makefile.in
 +++ b/Makefile.in
-@@ -8,6 +8,9 @@
+@@ -7,6 +7,9 @@
  
  include config.mk
  
