@@ -1,3 +1,9 @@
+xen-api-libs (0.5-3) unstable; urgency=low
+
+  * Upstream has new build dependency on libounit-ocaml-dev
+
+ -- Mike McClurg <mike.mcclurg@citrix.com>  Thu, 17 Nov 2011 15:20:05 +0000
+
 xen-api-libs (0.5-2) unstable oneiric; urgency=low
 
   * Fix control file following renaming of the blktap packages
