@@ -1,12 +1,21 @@
+From: Jon Ludlam <jonathan.ludlam@eu.citrix.com>
+Date: Tue, 22 Nov 2011 00:30:33 +0000
+Subject: no-get-boot-cpufeatures
+
 commit 3ac9a997b39571a678352efdef5c0c5b25fba78a
 Author: Jon Ludlam <jon@dhcp-3-31.uk.xensource.com>
 Date:   Fri Jul 1 11:58:53 2011 +0100
 
     Remove call to get boot cpuid - it's not in OSS Xen
+---
+ cpuid/cpuid.ml |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
+diff --git a/cpuid/cpuid.ml b/cpuid/cpuid.ml
+index 1227112..c50ed2e 100644
 --- a/cpuid/cpuid.ml
 +++ b/cpuid/cpuid.ml
-@@ -138,7 +138,7 @@
+@@ -138,7 +138,7 @@ let is_maskable manufacturer family model stepping =
  
  let get_features_from_xen () =
  	let features = 
@@ -15,3 +24,4 @@ Date:   Fri Jul 1 11:58:53 2011 +0100
  	  with _ -> 0l, 0l, 0l, 0l, 0l, 0l, 0l, 0l 
  	in
  	match features with
+-- 

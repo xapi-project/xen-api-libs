@@ -1,0 +1,31 @@
+From: Jon Ludlam <jonathan.ludlam@eu.citrix.com>
+Date: Tue, 22 Nov 2011 00:33:13 +0000
+Subject: rename-fe-xcp-fe
+
+---
+ forking_executioner/Makefile |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/forking_executioner/Makefile b/forking_executioner/Makefile
+index b6bfd9d..6814e09 100644
+--- a/forking_executioner/Makefile
++++ b/forking_executioner/Makefile
+@@ -9,7 +9,7 @@ OBJS =
+ INTF = $(foreach obj, $(OBJS),$(obj).cmi)
+ LIBS = 
+ 
+-PROGRAMS = fe
++PROGRAMS = xcp-fe
+ 
+ all: $(INTF) $(LIBS) $(PROGRAMS)
+ 
+@@ -20,7 +20,7 @@ libs: $(LIBS)
+ test_forker: test_forker.cmx
+ 	$(OCAMLOPT) $(OCAMLOPTFLAGS) -I ../rpc-light -I ../uuid -I ../stdext uuid.cmxa rpc.cmx jsonrpc.cmx -I ../log unix.cmxa stdext.cmxa  test_forker.cmx -o $@
+ 
+-fe: fe_debug.cmx child.cmx fe_main.cmx
++xcp-fe: fe_debug.cmx child.cmx fe_main.cmx
+ 	$(OCAMLOPT) $(OCAMLOPTFLAGS) -I ../rpc-light -I ../stdext -I ../uuid  -I ../log log.cmxa uuid.cmxa unix.cmxa rpc.cmx jsonrpc.cmx stdext.cmxa fe_debug.cmx child.cmx fe_main.cmx -o $@
+ 
+ %.cmo: %.ml
+-- 

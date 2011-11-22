@@ -1,0 +1,23 @@
+From: Jon Ludlam <jonathan.ludlam@eu.citrix.com>
+Date: Tue, 22 Nov 2011 00:30:34 +0000
+Subject: new-ocaml-packaging
+
+---
+ Makefile.in |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+diff --git a/Makefile.in b/Makefile.in
+index 4c18819..0f4ce15 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -7,6 +7,9 @@ HAVE_TYPECONV = @OCAML_PKG_type_conv@
+ 
+ include config.mk
+ 
++OCAMLPATH=/usr/lib/xen-4.1/lib/ocaml
++export OCAMLPATH
++
+ .PHONY: default
+ default: all 
+ 	@:
+-- 

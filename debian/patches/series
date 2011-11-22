@@ -1,6 +1,7 @@
-no-get-boot-cpufeatures
-type-conv-2.3
-fix-vhd-build
-fe-init-script
-nice-path
-new-ocaml-packaging
+0001-no-get-boot-cpufeatures.patch
+0002-type-conv-2.3.patch
+0003-fix-vhd-build.patch
+0004-fe-init-script.patch
+0005-nice-path.patch
+0006-new-ocaml-packaging.patch
+0007-rename-fe-xcp-fe.patch
