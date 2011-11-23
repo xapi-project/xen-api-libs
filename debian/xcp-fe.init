@@ -17,7 +17,7 @@
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
 DESC="Fork and exec daemon"
-NAME=fe
+NAME=xcp-fe
 DAEMON=/usr/sbin/$NAME
 DAEMON_ARGS="-daemon"
 PIDFILE=/var/run/$NAME.pid

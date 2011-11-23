@@ -1,3 +1,9 @@
+xen-api-libs (0.5-5) oneiric; urgency=low
+
+  * A bit more fixing of xcp-fe
+
+ -- Jon Ludlam <jon@frankenelmo.uk.xensource.com>  Wed, 23 Nov 2011 00:41:56 +0000
+
 xen-api-libs (0.5-4) unstable; urgency=low
 
   * Rename fe xcp-fe 
