@@ -1,4 +1,4 @@
-xen-api-libs (0.5-5) oneiric; urgency=low
+xen-api-libs (0.5-5) unstable; urgency=low
 
   * A bit more fixing of xcp-fe
 
