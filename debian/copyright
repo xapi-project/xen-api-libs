@@ -1,4 +1,4 @@
-Format: http://dep.debian.net/deps/dep5
+Format: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=173
 Upstream-Name: xen-api-libs
 Source: http://github.com/xen-org/xen-api-libs
 

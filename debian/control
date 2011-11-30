@@ -29,7 +29,6 @@ Description: Ocaml libraries required by the XCP xen control stack
 
 Package: xcp-fe
 Architecture: any
-Section: libs
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Fork-and-exec daemon for xapi
  This daemon is the fork-and-exec daemon used by xapi. When xapi requires
