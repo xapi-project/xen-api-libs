@@ -1,0 +1,145 @@
+From: Jon Ludlam <jonathan.ludlam@eu.citrix.com>
+Date: Thu, 8 Dec 2011 11:06:19 +0000
+Subject: fhs-compliance
+
+---
+ config.mk.in                       |    2 +-
+ forking_executioner/child.ml       |    2 +-
+ forking_executioner/fe_main.ml     |    4 ++--
+ forking_executioner/test_forker.ml |    2 +-
+ http-svr/http_test.ml              |    4 ++--
+ netdev/netdev.ml                   |    2 +-
+ stdext/forkhelpers.ml              |    2 +-
+ stunnel/stunnel.ml                 |    2 +-
+ xen-utils/xen_cmdline.ml           |    2 +-
+ 9 files changed, 11 insertions(+), 11 deletions(-)
+
+diff --git a/config.mk.in b/config.mk.in
+index eaf8a35..1d08ba5 100644
+--- a/config.mk.in
++++ b/config.mk.in
+@@ -31,7 +31,7 @@ RPCLIGHTFLAGS = -package camlp4,type-conv -ppopt -I -ppopt ../rpc-light -ppopt p
+ 
+ DOCDIR = ../doc
+ 
+-LIBEXEC = "/opt/xensource/libexec"
++LIBEXEC = "/usr/lib/xcp/lib"
+ 
+ SPOT=$(wildcard *.sp?t)
+ 
+diff --git a/forking_executioner/child.ml b/forking_executioner/child.ml
+index ecea015..d2691c6 100644
+--- a/forking_executioner/child.ml
++++ b/forking_executioner/child.ml
+@@ -172,7 +172,7 @@ let run state comms_sock fd_sock fd_sock_path =
+ 		let cmdline = String.concat " " args in
+ 		let limit = 80 - 3 in
+ 		let cmdline' = if String.length cmdline > limit then String.sub cmdline 0 limit ^ "..." else cmdline in
+-		if code=0 && name = "/opt/xensource/sm/ISOSR" && (String.has_substr cmdline' "sr_scan") then () else
++		if code=0 && name = "/usr/lib/xcp/sm/ISOSR" && (String.has_substr cmdline' "sr_scan") then () else
+ 			Syslog.log Syslog.Syslog Syslog.Err (Printf.sprintf "%d (%s) %s %d" result cmdline' reason code) in
+ 
+ 	  let status = ref (Unix.WEXITED (-1)) in
+diff --git a/forking_executioner/fe_main.ml b/forking_executioner/fe_main.ml
+index 5e3c068..533bff6 100644
+--- a/forking_executioner/fe_main.ml
++++ b/forking_executioner/fe_main.ml
+@@ -5,7 +5,7 @@ let default_pidfile = "/var/run/fe.pid"
+ open Fe_debug
+ 
+ let setup sock cmdargs id_to_fd_map syslog_stdout env =
+-  let fd_sock_path = Printf.sprintf "/var/xapi/forker/fd_%s" 
++  let fd_sock_path = Printf.sprintf "/var/lib/xcp/forker/fd_%s" 
+     (Uuid.to_string (Uuid.make_uuid ())) in
+   let fd_sock = Fecomms.open_unix_domain_sock () in
+   Unixext.unlink_safe fd_sock_path;
+@@ -58,7 +58,7 @@ let _ =
+ 
+   Sys.set_signal Sys.sigpipe (Sys.Signal_ignore);
+ 
+-  let main_sock = Fecomms.open_unix_domain_sock_server "/var/xapi/forker/main" in
++  let main_sock = Fecomms.open_unix_domain_sock_server "/var/lib/xcp/forker/main" in
+ 
+   Unixext.pidfile_write !pidfile;
+ 
+diff --git a/forking_executioner/test_forker.ml b/forking_executioner/test_forker.ml
+index b130d26..e5e20a7 100644
+--- a/forking_executioner/test_forker.ml
++++ b/forking_executioner/test_forker.ml
+@@ -1,7 +1,7 @@
+ 
+ let _ = 
+   let die_at = int_of_string Sys.argv.(1) in
+-  let sock = Fecomms.open_unix_domain_sock_client "/var/xapi/forker/main" in
++  let sock = Fecomms.open_unix_domain_sock_client "/var/lib/xcp/forker/main" in
+   let uuid = Uuid.to_string (Uuid.make_uuid ()) in
+   Printf.fprintf stderr "About to write raw rpc\n%!";
+   Fecomms.write_raw_rpc sock (Fe.Setup {Fe.cmdargs=["/bin/fecho";"hello";"test"]; id_to_fd_map = [(uuid,Some (Unixext.int_of_file_descr Unix.stdout))]; env=[]});
+diff --git a/http-svr/http_test.ml b/http-svr/http_test.ml
+index 915987f..1ac5297 100644
+--- a/http-svr/http_test.ml
++++ b/http-svr/http_test.ml
+@@ -97,8 +97,8 @@ let test_radix_tree2 _ =
+ let test_url _ =
+ 	let open Http in
+ 	let open Http.Url in
+-	begin match of_string "file:/var/xapi/storage" with
+-		| File ({ path = "/var/xapi/storage" }, "/") -> ()
++	begin match of_string "file:/var/lib/xcp/storage" with
++		| File ({ path = "/var/lib/xcp/storage" }, "/") -> ()
+ 		| _ -> assert false
+ 	end;
+ 	begin match of_string "http://root:foo@localhost" with
+diff --git a/netdev/netdev.ml b/netdev/netdev.ml
+index d3917cb..beedd3b 100644
+--- a/netdev/netdev.ml
++++ b/netdev/netdev.ml
+@@ -427,7 +427,7 @@ let get_bios_name name =
+ 
+ (* Dispatch network backend operations. *)
+ 
+-let network_config_file = "/etc/xensource/network.conf"
++let network_config_file = "/etc/xcp/network.conf"
+ let network_backend = 
+   try 
+     kind_of_string (String.strip String.isspace (Unixext.string_of_file network_config_file))
+diff --git a/stdext/forkhelpers.ml b/stdext/forkhelpers.ml
+index a39e68b..ee187dd 100644
+--- a/stdext/forkhelpers.ml
++++ b/stdext/forkhelpers.ml
+@@ -96,7 +96,7 @@ type syslog_stdout_t =
+ let safe_close_and_exec ?env stdin stdout stderr (fds: (string * Unix.file_descr) list) ?(syslog_stdout=NoSyslogging)
+     (cmd: string) (args: string list) =
+ 
+-  let sock = Fecomms.open_unix_domain_sock_client "/var/xapi/forker/main" in
++  let sock = Fecomms.open_unix_domain_sock_client "/var/lib/xcp/forker/main" in
+   let stdinuuid = Uuid.to_string (Uuid.make_uuid ()) in
+   let stdoutuuid = Uuid.to_string (Uuid.make_uuid ()) in
+   let stderruuid = Uuid.to_string (Uuid.make_uuid ()) in
+diff --git a/stunnel/stunnel.ml b/stunnel/stunnel.ml
+index f4542b3..fa669a3 100644
+--- a/stunnel/stunnel.ml
++++ b/stunnel/stunnel.ml
+@@ -37,7 +37,7 @@ let init_stunnel_path () =
+     if !use_new_stunnel then
+       cached_stunnel_path := Some new_stunnel_path
+     else (
+-      let choices = ["/opt/xensource/libexec/stunnel/stunnel";
++      let choices = ["/usr/lib/xcp/lib/stunnel/stunnel";
+ 		     "/usr/sbin/stunnel4";
+ 		     "/usr/sbin/stunnel";
+ 		     "/usr/bin/stunnel4";
+diff --git a/xen-utils/xen_cmdline.ml b/xen-utils/xen_cmdline.ml
+index 1edefa1..038b6fc 100644
+--- a/xen-utils/xen_cmdline.ml
++++ b/xen-utils/xen_cmdline.ml
+@@ -13,7 +13,7 @@
+  *)
+ open Stringext
+ 
+-let xen_cmdline_script = "/opt/xensource/libexec/xen-cmdline"
++let xen_cmdline_script = "/usr/lib/xcp/lib/xen-cmdline"
+ 
+ let call_script args = 
+ 	try
+-- 

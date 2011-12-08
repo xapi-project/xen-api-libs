@@ -7,9 +7,11 @@ Subject: type-conv-2.3
  rpc-light/META.in |    2 +-
  2 files changed, 2 insertions(+), 2 deletions(-)
 
+diff --git a/config.mk.in b/config.mk.in
+index eca1464..eaf8a35 100644
 --- a/config.mk.in
 +++ b/config.mk.in
-@@ -27,7 +27,7 @@
+@@ -27,7 +27,7 @@ OCAMLYACC = ocamlyacc
  OCAMLCFLAGS = -dtypes
  OCAMLOPTFLAGS = -g -dtypes
  
@@ -18,9 +20,11 @@ Subject: type-conv-2.3
  
  DOCDIR = ../doc
  
+diff --git a/rpc-light/META.in b/rpc-light/META.in
+index ccf738a..0170fef 100644
 --- a/rpc-light/META.in
 +++ b/rpc-light/META.in
-@@ -5,7 +5,7 @@
+@@ -5,7 +5,7 @@ requires = "rpc-light.xml, rpc-light.json"
  package "syntax" (
    version = "@VERSION@"
    description = "rpc-light: library to marshalling/unmarshalling ML types to/from RPC intermediate language"
@@ -29,3 +33,4 @@ Subject: type-conv-2.3
    archive(syntax,preprocessor) = "pa_rpc.cma"
    archive(syntax,toploop) = "pa_rpc.cma"
    )
+-- 

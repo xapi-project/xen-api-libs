@@ -7,7 +7,7 @@ Subject: new-ocaml-packaging
  1 files changed, 3 insertions(+), 0 deletions(-)
 
 diff --git a/Makefile.in b/Makefile.in
-index 4c18819..0f4ce15 100644
+index bf59865..236e94d 100644
 --- a/Makefile.in
 +++ b/Makefile.in
 @@ -7,6 +7,9 @@ HAVE_TYPECONV = @OCAML_PKG_type_conv@

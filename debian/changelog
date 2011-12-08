@@ -1,3 +1,9 @@
+xen-api-libs (0.5.2-2) unstable; urgency=low
+
+  * Use FHS compliant filesystem layout
+
+ -- Jon Ludlam <jon@frankenelmo.uk.xensource.com>  Thu, 08 Dec 2011 11:07:39 +0000
+
 xen-api-libs (0.5.2-1) unstable; urgency=low
 
   * New upstream release
