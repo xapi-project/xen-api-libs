@@ -1,47 +1,5 @@
 xen-api-libs (0.5.2-2) unstable; urgency=low
 
-  * Use FHS compliant filesystem layout
+  * Initial release (Closes: #646727).
 
  -- Jon Ludlam <jon@frankenelmo.uk.xensource.com>  Thu, 08 Dec 2011 11:07:39 +0000
-
-xen-api-libs (0.5.2-1) unstable; urgency=low
-
-  * New upstream release
-
- -- Jon Ludlam <jonathan.ludlam@eu.citrix.com>  Tue, 06 Dec 2011 17:12:25 +0000
-
-xen-api-libs (0.5.1-1) unstable; urgency=low
-
-  * Increment upstream version number
-
- -- Mike McClurg <mike.mcclurg@citrix.com>  Tue, 29 Nov 2011 18:11:17 +0000
-
-xen-api-libs (0.5-5) unstable; urgency=low
-
-  * A bit more fixing of xcp-fe
-
- -- Jon Ludlam <jon@frankenelmo.uk.xensource.com>  Wed, 23 Nov 2011 00:41:56 +0000
-
-xen-api-libs (0.5-4) unstable; urgency=low
-
-  * Rename fe xcp-fe 
-
- -- Jon Ludlam <jon@frankenelmo.uk.xensource.com>  Tue, 22 Nov 2011 00:35:17 +0000
-
-xen-api-libs (0.5-3) unstable; urgency=low
-
-  * Upstream has new build dependency on libounit-ocaml-dev
-
- -- Mike McClurg <mike.mcclurg@citrix.com>  Thu, 17 Nov 2011 15:20:05 +0000
-
-xen-api-libs (0.5-2) unstable oneiric; urgency=low
-
-  * Fix control file following renaming of the blktap packages
-
- -- Jon Ludlam <jon@frankenelmo.uk.xensource.com>  Fri, 04 Nov 2011 09:48:18 -0400
-
-xen-api-libs (0.5-1) unstable; urgency=low
-
-  * Initial release (Closes: #646727) 
-
- -- Jon Ludlam <jonathan.ludlam@eu.citrix.com>  Thu, 07 Jul 2011 13:53:51 +0100
