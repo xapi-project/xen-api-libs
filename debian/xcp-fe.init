@@ -129,20 +129,20 @@ case "$1" in
 	# If the "reload" option is implemented then remove the
 	# 'force-reload' alias
 	#
-	log_daemon_msg "Restarting $DESC" "$NAME"
+	[ "$VERBOSE" != no ] && log_daemon_msg "Restarting $DESC" "$NAME"
 	do_stop
 	case "$?" in
 	  0|1)
 		do_start
 		case "$?" in
-			0) log_end_msg 0 ;;
-			1) log_end_msg 1 ;; # Old process is still running
-			*) log_end_msg 1 ;; # Failed to start
+			0) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
+			1) [ "$VERBOSE" != no ] && log_end_msg 1 ;; # Old process is still running
+			*) [ "$VERBOSE" != no ] && log_end_msg 1 ;; # Failed to start
 		esac
 		;;
 	  *)
 	  	# Failed to stop
-		log_end_msg 1
+		[ "$VERBOSE" != no ] && log_end_msg 1
 		;;
 	esac
 	;;
