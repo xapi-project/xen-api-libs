@@ -38,7 +38,7 @@ Description: Xen Cloud Platform control stack core libraries (runtime)
 Package: libxcp-ocaml-dev
 Architecture: any
 Section: ocaml
-Depends: ${shlibs:Depends}, ${misc:Depends}, ${ocaml:Depends}, blktap-dev
+Depends: ${misc:Depends}, ${ocaml:Depends}, blktap-dev
 Provides: ${ocaml:Provides}
 Description: Xen Cloud Platform control stack core libraries (devel)
  The Xen Cloud Platform (XCP) is an open source enterprise-ready server
