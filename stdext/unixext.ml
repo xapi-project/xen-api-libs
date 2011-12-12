@@ -641,21 +641,69 @@ external statvfs : string -> statvfs_t = "stub_statvfs"
 module Direct = struct
 	type t = Unix.file_descr
 
-	external openfile : string -> Unix.open_flag list -> Unix.file_perm -> t = "stub_stdext_unix_open_direct"
+	external unsafe_openfile : string -> Unix.open_flag list -> Unix.file_perm -> t = "stub_stdext_unix_open_direct"
+
+	let openfile name perm = unsafe_openfile name [ Unix.O_RDWR ] perm
 
 	let close = Unix.close
 
-	let with_openfile path flags perms f =
-		let t = openfile path flags perms in
+	let with_openfile path perms f =
+		let t = openfile path perms in
 		finally (fun () -> f t) (fun () -> close t)
 
 	external unsafe_write : t -> string -> int -> int -> int = "stub_stdext_unix_write"
 
-	let write fd buf ofs len =
+	external unsafe_read : t -> string -> int -> int -> int = "stub_stdext_unix_read"
+
+	let sector_size = 512 (* open(2) says that linux 2.6+ accepts this *)
+	let sector_sizeL = Int64.of_int sector_size
+
+	(* Writes a sub-sector *)
+	let read_modify_write fd buf ofs len =
+		if (len > sector_size)
+		then failwith (Printf.sprintf "read_modify_write: len (%d) > sector_size (%d)" len sector_size);
+		let cur = Unix.LargeFile.lseek fd 0L Unix.SEEK_CUR in
+		let misalignmentL = Int64.rem cur sector_sizeL in
+		let misalignment = Int64.to_int misalignmentL in
+		let cur' = Unix.LargeFile.lseek fd (Int64.sub 0L misalignmentL) Unix.SEEK_CUR in
+		assert (Int64.rem cur' sector_sizeL = 0L);
+		let sector = String.make sector_size '\000' in
+		let x = unsafe_read fd sector 0 sector_size in
+		if x <> sector_size
+		then failwith (Printf.sprintf "short O_DIRECT read: %d" x);
+		(* modify *)
+		String.blit buf 0 sector misalignment len;
+		(* write *)
+		let _ = Unix.LargeFile.lseek fd (Int64.sub 0L sector_sizeL) Unix.SEEK_CUR in
+		let x = unsafe_write fd sector 0 sector_size in
+		if x <> sector_size
+		then failwith (Printf.sprintf "short O_DIRECT write: %d" x);
+	    len
+
+	let write fd buf ofs len' =
+		let len = len' in
 		if ofs < 0 || len < 0 || ofs > String.length buf - len
 		then invalid_arg "Unix.write"
-		else unsafe_write fd buf ofs len
+		else
+			(* If the file offset isn't sector aligned, we need to do a
+			   read/modify/write *)
+			let cur = Unix.LargeFile.lseek fd 0L Unix.SEEK_CUR in
+			let misalignment = Int64.to_int (Int64.rem cur sector_sizeL) in
+			let written =
+				if misalignment <> 0
+				then read_modify_write fd buf ofs (sector_size - misalignment)
+				else 0 in
+			let ofs = ofs + written and len = len - written in
+			(* File pointer is guaranteed to be sector-aligned *)
+			let written = unsafe_write fd buf ofs (len / sector_size * sector_size) in
+			let ofs = ofs + written and len = len - written in
+			let written =
+				if len > 0
+				then read_modify_write fd buf ofs len
+				else 0 in
+			len'
 
+	(* PR-1255: this probably doesn't handle alignment properly *)
 	let copy_from_fd ?limit socket fd = copy_file_internal ?limit (Unix.read socket) (write fd)
 
 	let fsync x = fsync x

@@ -162,14 +162,14 @@ module Direct : sig
 	type t
 	(** represents a file open in O_DIRECT mode *)
 
-	val openfile : string -> Unix.open_flag list -> Unix.file_perm -> t
-	(** [openfile name flags perm] behaves the same as [Unix.openfile] but includes the O_DIRECT flag *)
+	val openfile : string -> Unix.file_perm -> t
+	(** [openfile name perm] behaves the same as [Unix.openfile] but includes the O_DIRECT flag *)
 
 	val close : t -> unit
 	(** [close t] closes [t], a file open in O_DIRECT mode *)
 
-	val with_openfile : string -> Unix.open_flag list -> Unix.file_perm -> (t -> 'a) -> 'a
-	(** [with_openfile name flags perm f] opens [name], applies the result to [f] and closes *)
+	val with_openfile : string -> Unix.file_perm -> (t -> 'a) -> 'a
+	(** [with_openfile name perm f] opens [name], applies the result to [f] and closes *)
 
 	val write : t -> string -> int -> int -> int
 	(** [write t buf ofs len] writes [len] bytes at offset [ofs] from buffer [buf] to
