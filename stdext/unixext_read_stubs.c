@@ -29,16 +29,15 @@ CAMLprim value stub_stdext_unix_read(value fd, value buf, value ofs, value len)
 
   Begin_root (buf);
     numbytes = Long_val(len);
-    if (numbytes > UNIX_BUFFER_SIZE) numbytes = UNIX_BUFFER_SIZE;
     ret = posix_memalign(&iobuf, BLOCK_SIZE, numbytes);
     if (ret != 0)
       uerror("read/posix_memalign", Nothing);
     enter_blocking_section();
     ret = read(Int_val(fd), iobuf, (int) numbytes);
     leave_blocking_section();
-    free(iobuf);
     if (ret == -1) uerror("read", Nothing);
     memmove (&Byte(buf, Long_val(ofs)), iobuf, ret);
+    free(iobuf);
   End_roots();
   return Val_int(ret);
 }
