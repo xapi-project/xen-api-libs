@@ -12,6 +12,7 @@
 /***********************************************************************/
 
 /* $Id: write.c 9547 2010-01-22 12:48:24Z doligez $ */
+       #include <stdio.h>
 
 #include <errno.h>
 #include <string.h>
@@ -20,7 +21,7 @@
 #include <caml/signals.h>
 #include <caml/unixsupport.h>
 
-#define PAGE_SIZE 4096
+#define BLOCK_SIZE 512
 
 #ifndef EAGAIN
 #define EAGAIN (-1)
@@ -34,14 +35,13 @@ CAMLprim value stub_stdext_unix_write(value fd, value buf, value vofs, value vle
   long ofs, len, written;
   int numbytes, ret;
   void *iobuf = NULL;
-
   Begin_root (buf);
     ofs = Long_val(vofs);
     len = Long_val(vlen);
     written = 0;
     while (len > 0) {
       numbytes = len > UNIX_BUFFER_SIZE ? UNIX_BUFFER_SIZE : len;
-	  ret = posix_memalign(&iobuf, PAGE_SIZE, numbytes);
+	  ret = posix_memalign(&iobuf, BLOCK_SIZE, numbytes);
 	  if (ret != 0)
 	    uerror("write/posix_memalign", Nothing);
 
