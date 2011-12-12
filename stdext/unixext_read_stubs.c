@@ -14,12 +14,12 @@
 /* $Id: read.c 4144 2001-12-07 13:41:02Z xleroy $ */
 
 #include <string.h>
-#include <mlvalues.h>
-#include <memory.h>
-#include <signals.h>
-#include "unixsupport.h"
+#include <caml/mlvalues.h>
+#include <caml/memory.h>
+#include <caml/signals.h>
+#include <caml/unixsupport.h>
 
-CAMLprim value unix_read(value fd, value buf, value ofs, value len)
+CAMLprim value stub_stdext_unix_read(value fd, value buf, value ofs, value len)
 {
   long numbytes;
   int ret;
