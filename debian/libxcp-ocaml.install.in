@@ -35,7 +35,7 @@
 @OCamlStdlibDir@/xcp/rpc-light/META
 @OCamlStdlibDir@/xcp/netdev/META
 @OCamlStdlibDir@/xcp/cpuid/META
-@OCamlStdlibDir@/xcp/stublibs
+@OCamlStdlibDir@/xcp/stublibs/*.so
 @OCamlStdlibDir@/xcp/lvm/META
 @OCamlStdlibDir@/xcp/lvm/lvm.cma
 @OCamlStdlibDir@/xcp/camldm/META

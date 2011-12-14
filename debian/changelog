@@ -1,4 +1,4 @@
-xen-api-libs (0.5.2-2) unstable; urgency=low
+xen-api-libs (0.5.2-3) unstable; urgency=low
 
   * Initial release (Closes: #646727).
 
