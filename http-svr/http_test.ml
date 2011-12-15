@@ -136,7 +136,7 @@ let test_url _ =
 	end;
 	begin
 		let u = of_string "https://xapi.xen.org/services/SM?foo=bar" in
-		let u' = set_uri u (get_uri_path u ^ "/data") in
+		let u' = set_uri u (get_uri u ^ "/data") in
 		let s = to_string u' in
 		assert (s = "https://xapi.xen.org/services/SM/data?foo=bar")
 	end
