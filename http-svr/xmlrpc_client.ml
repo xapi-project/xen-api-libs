@@ -15,7 +15,7 @@ open Stringext
 open Pervasiveext
 open Threadext
 
-module D = Debug.Debugger(struct let name = "xapi" end)
+module D = Debug.Debugger(struct let name = "xmlrpc_client" end)
 open D
 
 module Internal = struct
@@ -177,7 +177,6 @@ let transport_of_url (scheme, _) =
 
 let with_transport transport f = match transport with
 	| Unix path ->
-		debug "Attempting to open %s" path;
 		let fd = Unixext.open_connection_unix_fd path in
 		finally
 			(fun () -> f fd)
