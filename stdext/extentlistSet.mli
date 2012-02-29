@@ -6,13 +6,17 @@ module type Number = sig
 	val zero: t
 	val add : t -> t -> t 
 	val sub : t -> t -> t 
-
+	val t_of_rpc : Rpc.t -> t
+    val rpc_of_t : t -> Rpc.t
 end
 
 (** Representation of a Set *)
 module ExtentlistSet: functor (A : Number) -> sig
 	type extent = A.t * A.t
 	type t
+
+	val t_of_rpc : Rpc.t -> t
+	val rpc_of_t : t -> Rpc.t
 
 	val empty : t
 

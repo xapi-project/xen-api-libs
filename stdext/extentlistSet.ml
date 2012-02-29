@@ -4,12 +4,14 @@ module type Number = sig
 	val zero: t
 	val add : t -> t -> t
 	val sub : t -> t -> t
+	val t_of_rpc : Rpc.t -> t
+	val rpc_of_t : t -> Rpc.t
 end
 
 module ExtentlistSet (A : Number) =
 struct
-	type extent = A.t * A.t
-	type t = extent list
+	type extent = A.t * A.t with rpc
+	type t = extent list with rpc
 
 	let ($+) = A.add
 	let ($-) = A.sub
