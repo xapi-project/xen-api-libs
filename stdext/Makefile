@@ -89,9 +89,6 @@ querycd: querycd.cmo
 threadext.cmo: threadext.ml threadext.cmi
 	$(OCAMLC) -thread -c -o $@ $<
 
-extentlistSet.cmo : extentlistSet.ml
-	$(OCAMLC) $(RPCLIGHTFLAGS) -I ../rpc-light -c -o $@ $<
-
 fecomms.cmo : fecomms.ml
 	$(OCAMLC) -I ../rpc-light -c -o $@ $<
 
@@ -110,9 +107,6 @@ filenameext.cmo: filenameext.ml filenameext.cmi
 threadext.cmi: threadext.mli
 	$(OCAMLC) -thread -c -o $@ $<
 
-extentlistSet.cmi: extentlistSet.mli
-	$(OCAMLC) $(RPCLIGHTFLAGS) -I ../rpc-light -c -o $@ $<
-
 forkhelpers.cmi: forkhelpers.mli
 	$(OCAMLC) -thread -c -o $@ $<
 
@@ -130,9 +124,6 @@ fe.cmx: fe.ml
 
 threadext.cmx: threadext.ml threadext.cmi
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) -thread -c -o $@ $<
-
-extentlistSet.cmx: extentlistSet.ml
-	$(OCAMLOPT) $(OCAMLOPTFLAGS) $(RPCLIGHTFLAGS) -I ../rpc-light -c -o $@ $<
 
 fecomms.cmx : fecomms.ml
 	$(OCAMLOPT) -I ../rpc-light -c -o $@ $<
