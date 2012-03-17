@@ -129,20 +129,20 @@ module Debugger = functor(Brand: BRAND) -> struct
   let get_task () =
     default "" (may (fun s -> s) (get_task_from_thread ()))
 
-	let make_log_message brand priority message =
+	let make_log_message include_time brand priority message =
 		let extra =
 			Printf.sprintf "%s|%s|%s|%s"
 				(get_hostname ())
 				(get_thread_name ())
 				(get_task ())
 				brand in
-		Printf.sprintf "[%s%.5s|%s] %s" (gettimestring ()) priority extra message
+		Printf.sprintf "[%s%.5s|%s] %s" (if include_time then gettimestring () else "") priority extra message
 
 	let output level priority (fmt: ('a, unit, string, 'b) format4) =
 		Printf.kprintf
 			(fun s ->
 				if not(is_disabled Brand.name) then begin
-					let msg = make_log_message Brand.name priority s in
+					let msg = make_log_message false Brand.name priority s in
 					Syslog.log (get_facility ()) level msg
 				end
 			) fmt
@@ -154,7 +154,7 @@ module Debugger = functor(Brand: BRAND) -> struct
 	let audit ?(raw=false) (fmt: ('a, unit, string, 'b) format4) =
 		Printf.kprintf
 			(fun s ->
-				let msg = if raw then s else make_log_message Brand.name "audit" s in
+				let msg = if raw then s else make_log_message true Brand.name "audit" s in
 				Syslog.log Syslog.Local6 Syslog.Info msg;
 				msg
 			) fmt
