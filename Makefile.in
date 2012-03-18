@@ -18,9 +18,9 @@ ifeq ($(HAVE_TYPECONV),type-conv)
 endif
 	$(MAKE) -C uuid
 	$(MAKE) -C stdext
+	$(MAKE) -C log
 	$(MAKE) -C xenctrlext
 	$(MAKE) -C xenstoreext
-	$(MAKE) -C log
 	$(MAKE) -C stunnel
 	$(MAKE) -C pciutil
 	$(MAKE) -C close-and-exec
