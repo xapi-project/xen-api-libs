@@ -12,6 +12,7 @@
  * GNU Lesser General Public License for more details.
  *)
 open Pervasiveext
+open Stringext
 
 exception Unix_error of int
 
@@ -131,7 +132,6 @@ let file_lines_iter f = file_lines_fold (fun () line -> ignore(f line)) ()
 
 let readfile_line = file_lines_iter
 
-
 (** [fd_blocks_fold block_size f start fd] folds [f] over blocks (strings)
     from the fd [fd] with initial value [start] *)
 let fd_blocks_fold block_size f start fd = 
@@ -165,6 +165,18 @@ let buffer_of_file file_path = with_file file_path [ Unix.O_RDONLY ] 0 buffer_of
 let bigbuffer_of_file file_path = with_file file_path [ Unix.O_RDONLY ] 0 bigbuffer_of_fd
 
 let string_of_file file_path = Buffer.contents (buffer_of_file file_path)
+
+let pidof ~(program : string) : int list =
+	let cmd = "pidof " ^ program in
+	let input = Unix.open_process_in cmd in
+	let get_pids_from_line acc line =
+		let open String in
+		let is_not_empty word = length (strip isspace word) > 0 in
+		let non_empty_words = List.filter is_not_empty (split ' ' line) in
+		let pids = List.map int_of_string non_empty_words in
+		acc @ pids
+	in
+	lines_fold get_pids_from_line [] input
 
 (** Opens a temp file, applies the fd to the function, when the function completes, renames the file
     as required. *)
