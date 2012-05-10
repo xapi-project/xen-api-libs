@@ -66,6 +66,9 @@ val bigbuffer_of_file : string -> Bigbuffer.t
 (** [string_of_file file] returns a string containing the contents of [file] *)
 val string_of_file : string -> string
 
+(** [pidof program] returns a list of process id-s for that program. *)
+val pidof : program:string -> int list
+
 val atomic_write_to_file : string -> Unix.file_perm -> (Unix.file_descr -> 'a) -> 'a
 val write_string_to_file : string -> string -> unit
 val execv_get_output : string -> string array -> int * Unix.file_descr
