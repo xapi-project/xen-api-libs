@@ -242,7 +242,7 @@ let dev_path_of_dm_name dm_name =
     Printf.sprintf "/dev/mapper/%s" dm_name
 
 let lv_activate_internal name dm_map dereference_table use_tmp dev =
-  let realname = if use_tmp then (Uuid.to_string (Uuid.make_uuid ())) else name in
+  let realname = if use_tmp then (Uuid.to_string (Uuid.insecure ())) else name in
   let nod = dev_path_of_dm_name realname in
   debug (Printf.sprintf "Using dm_name=%s (use_tmp=%b)" realname use_tmp);
   if not !Constants.dummy_mode then begin

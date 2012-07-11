@@ -20,8 +20,16 @@
 (** A 128-bit UUID.  Using phantom types ('a) to achieve the requires type-safety. *)
 type 'a t
 
-(** Create a fresh UUID *)
-val make_uuid : unit -> 'a t
+(** Create a UUID which may be guessable. This function is cheap and should be used
+    wherever possible. *)
+val insecure : unit -> 'a t
+
+(** Create a UUID which is unguessable. This function is expensive and should only
+    be used where necessary. *)
+val secure : unit -> 'a t
+
+(** Deprecated alias for {! Uuid.secure} *)
+(* val make_uuid : unit -> 'a t*)
 
 (** Create a UUID from a string. *)
 val of_string : string -> 'a t

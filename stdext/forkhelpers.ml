@@ -97,9 +97,9 @@ let safe_close_and_exec ?env stdin stdout stderr (fds: (string * Unix.file_descr
     (cmd: string) (args: string list) =
 
   let sock = Fecomms.open_unix_domain_sock_client "/var/xapi/forker/main" in
-  let stdinuuid = Uuid.to_string (Uuid.make_uuid ()) in
-  let stdoutuuid = Uuid.to_string (Uuid.make_uuid ()) in
-  let stderruuid = Uuid.to_string (Uuid.make_uuid ()) in
+  let stdinuuid = Uuid.to_string (Uuid.insecure ()) in
+  let stdoutuuid = Uuid.to_string (Uuid.insecure ()) in
+  let stderruuid = Uuid.to_string (Uuid.insecure ()) in
 
   let fds_to_close = ref [] in
 

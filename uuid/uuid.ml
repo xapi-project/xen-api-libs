@@ -71,6 +71,9 @@ let make_uuid_urnd () = uuid_of_int_array (read_array dev_urandom 16)
 let make_uuid_rnd () = uuid_of_int_array (read_array dev_random 16)
 let make_uuid = make_uuid_urnd
 
+let secure = make_uuid_urnd
+let insecure = make_uuid_prng
+
 let int_array_of_uuid s =
   try
     let l = ref [] in
