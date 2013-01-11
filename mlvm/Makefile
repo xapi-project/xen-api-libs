@@ -10,7 +10,7 @@ LIBS = lvm.cma lvm.cmxa
 default : $(LIBS)
 
 test_allocator: default
-	$(OCAMLOPT) -package kaputt -linkpkg -dtypes -g  -I ../stdext -I ../camldm -I ../uuid -I +kaputt unix.cmxa ../rpc-light/rpc.cmx ../rpc-light/jsonrpc.cmx ../camldm/camldm.cmxa ../uuid/uuid.cmxa ../stdext/stdext.cmxa ./lvm.cmxa test_allocator.ml -o $@
+	$(OCAMLOPT) -package kaputt,rpclib,rpclib.json -linkpkg -dtypes -g  -I ../stdext -I ../camldm -I ../uuid -I +kaputt unix.cmxa ../camldm/camldm.cmxa ../uuid/uuid.cmxa ../stdext/stdext.cmxa ./lvm.cmxa test_allocator.ml -o $@
 
 lvm.cmx: $(foreach obj,$(LIBOBJS),$(obj).cmx)
 	$(OCAMLOPT) -pack -g -o $@ $(foreach obj,$(LIBOBJS),$(obj).cmx)
@@ -85,7 +85,7 @@ tag.cmx: debug.cmx tag.cmi
 test_allocator: default
 	$(OCAMLOPT) -package kaputt -linkpkg -dtypes -g  -I ../stdext -I ../camldm -I ../uuid -I +kaputt $(INCLUDES) ./lvm.cmxa test_allocator.ml -o $@
 
-INCLUDES = unix.cmxa ../rpc-light/rpc.cmx ../rpc-light/jsonrpc.cmx ../camldm/camldm.cmxa ../uuid/uuid.cmxa ../stdext/stdext.cmxa
+INCLUDES = unix.cmxa ../camldm/camldm.cmxa ../uuid/uuid.cmxa ../stdext/stdext.cmxa
 
 test_fragment: lvm.cmxa $(LIBCMXS) test_fragment.ml
 	$(OCAMLOPT) $(COMPFLAG) $(INCLUDES) $^ -o $@

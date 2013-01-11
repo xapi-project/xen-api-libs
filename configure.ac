@@ -52,12 +52,10 @@ if test "$OCAMLFIND" = "no"; then
 fi
 
 AC_CHECK_OCAML_PKG([xmlm])
-AC_CHECK_OCAML_PKG([type-conv])
 
 AC_CONFIG_FILES([Makefile config.mk])
 AC_SUBST([XEN])
 AC_SUBST([DEVICE_MAPPER])
 AC_SUBST([LINUX_CDROM])
 AC_SUBST([OCAML_PKG_xmlm])
-AC_SUBST([OCAML_PKG_type_conv])
 AC_OUTPUT

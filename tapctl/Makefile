@@ -1,12 +1,12 @@
 include ../config.mk
 
-#FEPP = camlp4o -I ../rpc-light -I $(shell ocamlfind query type-conv) pa_type_conv.cmo pa_rpc.cma
+#FEPP = camlp4o -I $(shell ocamlfind query type_conv) pa_type_conv.cmo pa_rpc.cma
 
 OBJS = tapctl
 INTF = $(foreach obj, $(OBJS),$(obj).cmi)
 LIBS = tapctl.cma tapctl.cmxa
 
-OCAMLFLAGS = $(RPCLIGHTFLAGS) -I ../rpc-light -I ../stdext
+OCAMLFLAGS = $(RPCLIGHTFLAGS) -package rpclib -I ../stdext
 
 all: $(INTF) $(LIBS) $(PROGRAMS)
 

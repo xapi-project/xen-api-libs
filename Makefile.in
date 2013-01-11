@@ -3,7 +3,6 @@ HAVE_XEN = @XEN@
 HAVE_DEVICE_MAPPER = @DEVICE_MAPPER@
 HAVE_LINUX_CDROM = @LINUX_CDROM@
 HAVE_XMLM = @OCAML_PKG_xmlm@
-HAVE_TYPECONV = @OCAML_PKG_type_conv@
 
 include config.mk
 
@@ -13,9 +12,6 @@ default: all
 
 .PHONY: all
 all:
-ifeq ($(HAVE_TYPECONV),type-conv)
-	$(MAKE) -C rpc-light
-endif
 	$(MAKE) -C uuid
 	$(MAKE) -C stdext
 	$(MAKE) -C log
@@ -73,9 +69,6 @@ install: $(STUBLIBDIR)
 	$(MAKE) -C close-and-exec install
 	$(MAKE) -C sexpr install
 	$(MAKE) -C udev install
-ifeq ($(HAVE_TYPECONV),type-conv)
-	$(MAKE) -C rpc-light install
-endif
 ifeq ($(HAVE_XMLM),xmlm)
 	$(MAKE) -C xml-light2 install
 	$(MAKE) -C rss install
@@ -118,9 +111,6 @@ uninstall:
 	$(MAKE) -C close-and-exec uninstall
 	$(MAKE) -C sexpr uninstall
 	$(MAKE) -C udev uninstall
-ifeq ($(HAVE_TYPECONV),type-conv)
-	$(MAKE) -C rpc-light uninstall
-endif
 ifeq ($(HAVE_XMLM),xmlm)
 	$(MAKE) -C xml-light2 uninstall
 	$(MAKE) -C rss uninstall
@@ -161,7 +151,6 @@ doc:
 	$(MAKE) -C udev doc
 	$(MAKE) -C log doc
 	$(MAKE) -C xml-light2 doc
-	$(MAKE) -C rpc-light doc
 	$(MAKE) -C http-svr doc
 	$(MAKE) -C camldm doc
 	$(MAKE) -C cdrom doc
@@ -196,7 +185,6 @@ clean:
 	$(MAKE) -C cdrom clean
 	$(MAKE) -C xml-light2 clean
 	$(MAKE) -C rss clean
-	$(MAKE) -C rpc-light clean
 	$(MAKE) -C http-svr clean
 	$(MAKE) -C close-and-exec clean
 	$(MAKE) -C sexpr clean

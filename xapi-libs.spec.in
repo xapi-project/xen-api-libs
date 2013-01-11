@@ -38,6 +38,11 @@ This package contains the fork-and-exec daemon, required by xapi at runtime.
 %prep 
 %setup -q
 %build
+      opam --root ./.opam init /usr/local/opam-repository
+eval `opam --root ./.opam config -env`
+      opam --root ./.opam --yes install re uri cohttp rpc bitstring
+# "short-term" hack
+cp -r /usr/lib/ocaml/xen* ./.opam/system/lib/
 sh autogen.sh
 ./configure
 %{__make} 
