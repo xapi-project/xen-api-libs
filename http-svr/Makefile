@@ -21,7 +21,7 @@ test: http_test.opt
 	./http_test.opt
 
 http_test.opt: http_svr.cmxa http_test.cmx
-	$(OCAMLFIND) $(OCAMLOPT) $(OCAMLOPTFLAGS) -package "unix,threads,oUnit" -thread -linkpkg -o $@ ../rpc-light/rpc.cmx ../uuid/uuid.cmxa -cclib -L../stdext ../stdext/stdext.cmxa -cclib -L../log ../log/log.cmxa  http_svr.cmxa http_test.cmx
+	$(OCAMLFIND) $(OCAMLOPT) $(OCAMLOPTFLAGS) -package "unix,threads,oUnit,rpclib" -thread -linkpkg -o $@  ../uuid/uuid.cmxa -cclib -L../stdext ../stdext/stdext.cmxa -cclib -L../log ../log/log.cmxa  http_svr.cmxa http_test.cmx
 
 test_server.opt: http_svr.cmxa test_server.cmx
 	$(OCAMLFIND) $(OCAMLOPT) $(OCAMLOPTFLAGS) -package "stdext,unix,threads" -thread -linkpkg -o $@ -cclib -L../log ../log/log.cmxa http_svr.cmxa test_server.cmx
@@ -39,10 +39,10 @@ http_svr.cma: $(foreach obj,$(OBJS),$(obj).cmo)
 	$(OCAMLC) -c $(RPCLIGHTFLAGS) -thread -I ../rpc-light -I ../stdext -I ../log -I ../stunnel -o $@ $<
 
 %.cmi: %.mli
-	$(OCAMLC) -c -I ../rpc-light -thread -o $@ $<
+	$(OCAMLC) -c -package rpclib -thread -o $@ $<
 
 %.cmx: %.ml %.cmi
-	$(OCAMLFIND) $(OCAMLOPT) $(OCAMLOPTFLAGS) $(RPCLIGHTFLAGS) -package "oUnit" -c -thread -I ../rpc-light -I ../stdext -I ../log -I ../stunnel -o $@ $<
+	$(OCAMLFIND) $(OCAMLOPT) $(OCAMLOPTFLAGS) $(RPCLIGHTFLAGS) -package "oUnit,rpclib" -c -thread -I ../stdext -I ../log -I ../stunnel -o $@ $<
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
