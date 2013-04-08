@@ -244,7 +244,37 @@ CAMLprim value stub_xenctrlext_domain_set_target(value xch,
 	CAMLreturn(Val_unit);
 }
 
+CAMLprim value stub_xenctrlext_domain_pvcontrol_available(value xch,
+							  value domid)
+{
+  CAMLparam2(xch, domid);
 
+  int ret;
+  xc_domaininfo_t info;
+  value result = Val_false;
+  unsigned long pvdriver = 0;
+
+  ret = xc_domain_getinfolist(_H(xch), _D(domid), 1, &info);
+  if(ret != 1 || info.domain != _D(domid)) {
+    failwith_xc(_H(xch));
+  }
+
+  /* PV guests are always controllable */
+  if(!(info.flags & XEN_DOMINF_hvm_guest)) {
+    result = Val_true;
+  } else {
+    ret = xc_get_hvm_param(_H(xch), _D(domid), HVM_PARAM_CALLBACK_IRQ, &pvdriver);
+    if(ret<0) {
+      failwith_xc(_H(xch));
+    }
+    if(pvdriver!=0) {
+      /* If an HVM guest has set its CALLBACK_IRQ, it should be controllable */
+      result = Val_true;
+    }
+  }
+
+  CAMLreturn(result);
+}
 /* 
 * Local variables: 
 * indent-tabs-mode: t
