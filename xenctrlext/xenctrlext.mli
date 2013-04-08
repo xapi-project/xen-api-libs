@@ -46,6 +46,8 @@ external get_max_nr_cpus: handle -> int = "stub_xenctrlext_get_max_nr_cpus"
 
 external domain_set_target: handle -> domid -> domid -> unit = "stub_xenctrlext_domain_set_target"
 
+external domain_pvcontrol_available: handle -> domid -> bool = "stub_xenctrlext_domain_pvcontrol_available"
+
 module Xsrawext : sig
   val set_target : int -> int -> Xenstore.Xs.con -> unit
 end
