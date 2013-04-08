@@ -15,8 +15,6 @@
 (* Internally, a UUID is simply a string. *)
 type 'a t = string
 
-type cookie = string
-
 let of_string s = s
 let to_string s = s
 
@@ -25,10 +23,6 @@ let null = ""
 (* deprecated: we don't need to duplicate the uuid prefix/suffix *)
 let uuid_of_string = of_string
 let string_of_uuid = to_string
-
-let string_of_cookie s = s
-
-let cookie_of_string s = s
 
 let dev_random = "/dev/random"
 let dev_urandom = "/dev/urandom"
@@ -83,9 +77,8 @@ let make_uuid_urnd () = uuid_of_int_array (read_array dev_urandom 16)
 let make_uuid_rnd () = uuid_of_int_array (read_array dev_random 16)
 let make_uuid = make_uuid_urnd
 
-let make_cookie() =
-  let bytes = Array.to_list (read_array dev_urandom 64) in
-  String.concat "" (List.map (Printf.sprintf "%1x") bytes)
+let secure = make_uuid_urnd
+let insecure = make_uuid_prng
 
 let int_array_of_uuid s =
   try

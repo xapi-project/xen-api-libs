@@ -177,7 +177,7 @@ let attempt_one_connect ?unique_id ?(use_fork_exec_helper = true)
       None, None, [], (if extended_diagnosis then "-v" :: args else args)
     end else begin
       let config_out, config_in = Unix.pipe () in
-      let config_out_uuid = Uuid.to_string (Uuid.make_uuid ()) in
+      let config_out_uuid = Uuid.to_string (Uuid.insecure ()) in
       let config_out_fd = 
         string_of_int (Unixext.int_of_file_descr config_out) in
       fds_needed := config_out :: !fds_needed;
