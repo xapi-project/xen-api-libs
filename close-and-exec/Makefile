@@ -16,7 +16,7 @@ bins: $(PROGRAMS)
 libs: $(LIBS)
 
 closeandexec: closeandexec.cmxa closeandexec_main.cmx all
-	$(OCAMLOPT) $(OCAMLOPTFLAGS) -thread -I ../stdext -I ../uuid uuid.cmxa unix.cmxa threads.cmxa stdext.cmxa closeandexec.cmxa closeandexec_main.cmx -o $@
+	$(OCAMLOPT) $(OCAMLOPTFLAGS) -thread -I ../stdext -I ../uuid unix.cmxa threads.cmxa uuid.cmxa stdext.cmxa closeandexec.cmxa closeandexec_main.cmx -o $@
 
 closeandexec.cmxa: $(foreach obj,$(OBJS),$(obj).cmx)
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) -a -o $@ $(foreach obj,$(OBJS),$(obj).cmx)
