@@ -56,7 +56,7 @@ native: oclock.cmxa liboclock.a oclock.a
 lib%.a: %_stubs.o
 	ar crs $@ $<
 dll%.so: %_stubs.o
-	$(LD) -shared -o $@ $< -lrt
+	$(CC) -shared -o $@ $< -lrt
 
 # Generic Ocaml compilation
 %.cmo:%.ml
