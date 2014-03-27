@@ -31,6 +31,8 @@ let new_stunnel_path = "/usr/sbin/stunnelng"
 let cached_stunnel_path = ref None
 let stunnel_logger = ref ignore
 
+let timeoutidle = ref None
+
 let init_stunnel_path () =
   try cached_stunnel_path := Some (Unix.getenv "XE_STUNNEL")
   with Not_found ->
@@ -114,7 +116,9 @@ type t = { mutable pid: pid; fd: Unix.file_descr; host: string; port: int;
 	 }
 
 let config_file verify_cert extended_diagnosis host port = 
-  let lines = ["client=yes"; "foreground=yes"; "socket = r:TCP_NODELAY=1"; Printf.sprintf "connect=%s:%d" host port ] @
+  let lines = ["client=yes"; "foreground=yes"; "socket = r:TCP_NODELAY=1"; 
+               (match !timeoutidle with None -> "" | Some x -> Printf.sprintf "TIMEOUTidle = %d" x);
+               Printf.sprintf "connect=%s:%d" host port ] @
     (if extended_diagnosis then
        ["debug=4"]
      else
