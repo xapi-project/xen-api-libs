@@ -116,7 +116,7 @@ type t = { mutable pid: pid; fd: Unix.file_descr; host: string; port: int;
 	 }
 
 let config_file verify_cert extended_diagnosis host port = 
-  let lines = ["client=yes"; "foreground=yes"; "socket = r:TCP_NODELAY=1"; "socket = a:SO_KEEPALIVE=1";
+	let lines = ["client=yes"; "foreground=yes"; "socket = r:TCP_NODELAY=1"; "socket = r:SO_KEEPALIVE=1"; "socket = a:SO_KEEPALIVE=1";
                (match !timeoutidle with None -> "" | Some x -> Printf.sprintf "TIMEOUTidle = %d" x);
                Printf.sprintf "connect=%s:%d" host port ] @
     (if extended_diagnosis then
