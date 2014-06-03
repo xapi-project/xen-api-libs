@@ -24,6 +24,9 @@ SUBSYS_FILE="/var/lock/subsys/fe"
 # Source function library.
 . /etc/init.d/functions
 
+# Enable core dumping
+ulimit -c unlimited
+
 start() {
 	echo -n $"Starting the fork/exec daemon: "
 	
