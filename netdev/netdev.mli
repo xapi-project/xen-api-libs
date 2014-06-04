@@ -17,6 +17,7 @@
 type kind = 
     Bridge  (** Linux Bridge based networking *)
   | Vswitch (** Vswitch based networking *)
+  | Vrouter (** Vrouter based networking *)
 
 (** Possible operations on each network backend type. *)
 type network_ops = {
