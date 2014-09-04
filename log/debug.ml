@@ -157,7 +157,20 @@ module Debugger = functor(Brand: BRAND) -> struct
 				brand in
 		Printf.sprintf "[%s%.5s|%s] %s" (if include_time then gettimestring () else "") priority extra message
 
-
+	let output_lines output message =
+		let lines = String.split '\n' message in
+		let rec output_line line =
+			let max_line_len = 900 in
+			let line_len = String.length line in
+			if line_len <= max_line_len
+			then begin
+				output line
+			end else begin
+				output ((String.sub line 0 max_line_len) ^ "...");
+				output_line (String.sub line max_line_len (line_len - max_line_len))
+			end
+		in
+		List.iter output_line lines
 
 	let output level priority (fmt: ('a, unit, string, 'b) format4) =
 		Printf.kprintf
@@ -168,7 +181,7 @@ module Debugger = functor(Brand: BRAND) -> struct
 					if !print_debug
 					then Printf.printf "%s\n%!" (make_log_message true Brand.name priority s);
 
-					Syslog.log (get_facility ()) level msg
+					output_lines (fun line -> Syslog.log (get_facility ()) level line) msg
 				end
 			) fmt
     
@@ -180,7 +193,7 @@ module Debugger = functor(Brand: BRAND) -> struct
 		Printf.kprintf
 			(fun s ->
 				let msg = if raw then s else make_log_message true Brand.name "audit" s in
-				Syslog.log Syslog.Local6 Syslog.Info msg;
+				output_lines (fun line -> Syslog.log Syslog.Local6 Syslog.Info line) msg;
 				msg
 			) fmt
 
