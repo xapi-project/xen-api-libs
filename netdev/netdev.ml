@@ -14,7 +14,7 @@
 open Stringext
 open Forkhelpers
 
-type kind = Bridge | Vswitch
+type kind = Bridge | Vswitch | Vrouter
 
 type network_ops = { 
   kind: kind;
@@ -40,11 +40,13 @@ exception Invalid_network_backend_operation of string * kind
 let string_of_kind kind = match kind with
   | Bridge -> "bridge"
   | Vswitch -> "openvswitch"
+  | Vrouter -> "contrailvrouter"
 
 let kind_of_string s = match s with
   | "bridge" -> Bridge
   | "vswitch" -> Vswitch
   | "openvswitch" -> Vswitch
+  | "contrailvrouter" -> Vrouter
   | _ -> raise (Unknown_network_backend s)
 
 module Internal = struct
@@ -208,6 +210,65 @@ let ops = {
   is_on_bridge = is_on_bridge;
 
   set_forward_delay = set_forward_delay;
+}
+
+end
+
+module Vrouter = struct
+
+let vrctl_script = "/opt/contrail/bin/contrail-vrouter-ctl"
+
+let vrctl args =
+  Unix.access vrctl_script [ Unix.X_OK ];
+  let output, _ = Forkhelpers.execute_command_get_output vrctl_script args in
+  let stripped = Stringext.String.strip (fun c -> c='\n') output in
+  match stripped with
+    | "" -> []
+    | s -> Stringext.String.split '\n' s
+
+let add name ?uuid = 
+  let extra = match uuid with
+    | Some uuid' -> ["--"; "br-set-external-id"; name; "xs-network-uuids"; uuid']
+    | None -> ["--"; "foo"] in
+  ignore(vrctl (["add-br" ; name] @ extra))
+let del name = ignore(vrctl ["del-br" ; name])
+let list () = vrctl [ "list-br" ]
+
+let exists name = List.exists (fun x -> x = name) (list ())
+
+let intf_add name intf = ignore(vrctl ["add-port"; name; intf])
+let intf_del name intf = ignore(vrctl ["del-port"; name; intf])
+let intf_list name = vrctl [ "list-ports"; name ]
+
+let get_bridge name = 
+  match vrctl [ "port-to-br"; name ] with
+  | l::[] -> l
+  | [] -> failwith ("contrail-vrouter-ctl port-to-br: did not return a bridge for port " ^ name)
+  | _ -> failwith ("contrail-vrouter-ctl port-to-br: returned an unexpected number of results for port " ^ name)
+
+let is_on_bridge name = 
+  match vrctl [ "port-to-br"; name ] with
+  | l::[] -> true
+  | [] -> false
+  | _ -> failwith ("contrail-vrouter-ctl port-to-br: returned an unexpected number of results for port " ^ name)
+
+let ops = {
+  kind = Vrouter;
+
+  add = add;
+  del = del;
+  list = list;
+
+  exists = exists;
+
+  intf_add = intf_add;
+  intf_del = intf_del;
+  intf_list = intf_list;
+
+  get_bridge = get_bridge;
+  is_on_bridge = is_on_bridge;
+
+  set_forward_delay = fun name v -> raise (Invalid_network_backend_operation ("set_forward_delay", Vrouter))
 }
 
 end
@@ -438,3 +499,4 @@ let network_backend =
 let network = match network_backend with
   | Bridge -> Bridge.ops
   | Vswitch -> Vswitch.ops
+  | Vrouter -> Vrouter.ops
