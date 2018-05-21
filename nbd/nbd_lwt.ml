@@ -90,7 +90,13 @@ let connect hostname port =
 	lwt host_info = Lwt_unix.gethostbyname hostname in
     Printf.printf "Gothostbyname\n%!";
     let server_address = host_info.Lwt_unix.h_addr_list.(0) in
-	lwt () = Lwt_unix.connect socket (Lwt_unix.ADDR_INET (server_address, port)) in
+	  lwt () =
+      try
+        Lwt_unix.connect socket (Lwt_unix.ADDR_INET (server_address, port))
+      with e ->
+        Lwt_unix.close socket;
+        raise e
+    in
     Printf.printf "Connected\n%!";
     negotiate socket
 
