@@ -12,14 +12,20 @@ let user_agent = "test_client"
 *)
 
 let with_connection ip port f =
-    let inet_addr = Unix.inet_addr_of_string ip in
-	let addr = Unix.ADDR_INET(inet_addr, port) in
-	let s = Unix.socket Unix.PF_INET Unix.SOCK_STREAM 0 in
-	Unix.connect s addr;
-	Unixext.set_tcp_nodelay s true;
-	finally
-		(fun () -> f s)
-		(fun () -> Unix.close s)
+  let inet_addr = Unix.inet_addr_of_string ip in
+  let addr = Unix.ADDR_INET(inet_addr, port) in
+  let s = Unix.socket Unix.PF_INET Unix.SOCK_STREAM 0 in
+  begin
+    try
+      Unix.connect s addr;
+    with e ->
+      Unix.close s;
+      raise e
+  end;
+  Unixext.set_tcp_nodelay s true;
+  finally
+    (fun () -> f s)
+    (fun () -> Unix.close s)
 
 let with_stunnel ip port =
 	fun f ->

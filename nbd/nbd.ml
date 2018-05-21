@@ -184,12 +184,18 @@ let write sock dest_ofs str ofs len =
 	snd (write_wait sock)
 
 let connect hostname port =
-	let socket = Unix.socket Unix.PF_INET Unix.SOCK_STREAM 0 in
-	let host_info = Unix.gethostbyname hostname in
-	let server_address = host_info.Unix.h_addr_list.(0) in
-	let _ = Unix.connect socket (Unix.ADDR_INET (server_address, port)) in
-	let (sz,flags) = negotiate socket in
-	(socket, sz, flags)
+  let socket = Unix.socket Unix.PF_INET Unix.SOCK_STREAM 0 in
+  let host_info = Unix.gethostbyname hostname in
+  let server_address = host_info.Unix.h_addr_list.(0) in
+  let _ =
+    try
+      Unix.connect socket (Unix.ADDR_INET (server_address, port))
+    with e->
+      Unix.close socket;
+      raise e
+  in
+  let (sz,flags) = negotiate socket in
+  (socket, sz, flags)
 
 
-		
+
